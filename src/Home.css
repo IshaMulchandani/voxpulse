@@ -1,0 +1,86 @@
+.pollList, .resultsList{
+    list-style-type: none;
+    line-height: 2rem;
+}
+
+.pollList li, .resultsList li{
+    cursor: pointer;
+}
+
+.pollList li:hover, .resultsList li:hover{
+    text-decoration: underline;
+    color: #A695FF;
+}
+
+.sec1Cont h3, .sec2Cont h3{
+    text-align: center;
+}
+
+.sec1{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #A695FF;
+    width: fit-content;
+    padding: 1rem;
+    margin-left: 25rem;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0,0,0,0.3);
+}
+
+.sec2{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #A695FF;
+    width: fit-content;
+    padding: 1rem;
+    margin-left: 22.5rem;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0,0,0,0.3);
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  position: relative;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+.closeModal {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.modal-btn{
+    height: 2rem;
+    background-color: #A695FF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    width:4rem;
+}
+.modal-btn:hover{
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+}

@@ -2,6 +2,8 @@ import './Header.css'
 import logo from './Assets/main_logo.png'
 import React, { useState } from 'react';
 import { Menu, X } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import SignUp from './SignUp';
 
 export default function Header(){
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -36,10 +38,10 @@ export default function Header(){
                 
                 <div className="btns">
                     <div className="btn">
-                        <button>Sign Up</button>
+                        <Link to={'/signUp'}><button>Sign Up</button></Link>
                     </div>
                     <div className="btn">
-                        <button>Log In</button>
+                        <Link to={'/login'}><button>Log In</button></Link>
                     </div>
                 </div>
             </header>

@@ -49,7 +49,7 @@ export default function SignUp(){
                     <option value="">&#8377;6,00,001-&#8377;10,00,000</option>
                     <option value="">&gt;&#8377;10,00,000</option>
                 </select><br /><br />
-                <Link to='/' ><button>Submit</button></Link>
+                <Link to='/dashboard' ><button>Submit</button></Link>
             </form>
         </div>
     )

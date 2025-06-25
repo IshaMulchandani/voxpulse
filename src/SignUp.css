@@ -19,7 +19,7 @@ form{
     justify-content: center;
     padding: 1rem;
     border-radius: 10px;
-    background-color: rgba(166, 149, 255, 0.3);
+    background-color: rgb(166, 149, 255);
 }
 
 form button{

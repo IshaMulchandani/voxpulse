@@ -1,18 +1,73 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './Dashboard.css';
 import Navbar from './components/Navbar';
 import Header2 from './Header2';
-import Header from './Header';
-const Dashboard = () => {
-    // Sample data for voted polls
-    const votedPolls = [
-        { id: 1, title: "Best Programming Language", userChoice: "Python" },
-        { id: 2, title: "Favorite Learning Platform", userChoice: "Udemy" },
-        { id: 3, title: "Most Used Framework", userChoice: "React" },
-        { id: 4, title: "Preferred Database", userChoice: "MongoDB" },
-        { id: 5, title: "Best Code Editor", userChoice: "VS Code" }
-    ];
+import PollsForYou from './PollsForYou';
 
+// Inline Speedometer component
+const Speedometer = ({ percent, duration = 1500 }) => {
+    const [displayPercent, setDisplayPercent] = useState(0);
+    const requestRef = useRef();
+    const startTimeRef = useRef();
+
+    useEffect(() => {
+        const animate = (timestamp) => {
+            if (!startTimeRef.current) startTimeRef.current = timestamp;
+            const progress = Math.min((timestamp - startTimeRef.current) / duration, 1);
+            const current = Math.floor(progress * percent);
+            setDisplayPercent(current);
+            if (progress < 1) {
+                requestRef.current = requestAnimationFrame(animate);
+            } else {
+                setDisplayPercent(percent);
+            }
+        };
+        requestRef.current = requestAnimationFrame(animate);
+        return () => cancelAnimationFrame(requestRef.current);
+    }, [percent, duration]);
+
+    // SVG semi-circle gauge
+    const radius = 80;
+    const stroke = 16;
+    const normalizedRadius = radius - stroke / 2;
+    const circumference = Math.PI * normalizedRadius;
+    const offset = circumference * (1 - displayPercent / 100);
+
+    return (
+        <div className="speedometer-container">
+            <svg width={radius * 2} height={radius + stroke}>
+                <path
+                    d={`M${stroke},${radius} A${normalizedRadius},${normalizedRadius} 0 0,1 ${radius * 2 - stroke},${radius}`}
+                    fill="none"
+                    stroke="#f0f0f0"
+                    strokeWidth={stroke}
+                />
+                <path
+                    d={`M${stroke},${radius} A${normalizedRadius},${normalizedRadius} 0 0,1 ${radius * 2 - stroke},${radius}`}
+                    fill="none"
+                    stroke="#a695ff"
+                    strokeWidth={stroke}
+                    strokeDasharray={circumference}
+                    strokeDashoffset={offset}
+                    strokeLinecap="round"
+                />
+                <text
+                    x={radius}
+                    y={radius - 10}
+                    textAnchor="middle"
+                    alignmentBaseline="middle"
+                    fontSize="1.5rem"
+                    fontWeight="bold"
+                    fill="#333"
+                >
+                    {displayPercent}%
+                </text>
+            </svg>
+        </div>
+    );
+};
+
+const Dashboard = () => {
     // Reports data
     const reports = [
         {
@@ -31,24 +86,14 @@ const Dashboard = () => {
 
     return (
         <div className="dashboard">
-        <Header/>
-        <Navbar/>
-
-            <h1 className="dashboard-title">Your Dashboard</h1>
-            
-            <div className="dashboard-grid">
-                <div className="dashboard-section">
-                    <h2>Your Polls</h2>
-                    <div className="polls-list">
-                        {votedPolls.map(poll => (
-                            <div key={poll.id} className="poll-card">
-                                <h3>{poll.title}</h3>
-                                <p>Your choice: <span className="user-choice">{poll.userChoice}</span></p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
+            <Header2 />
+            <Navbar />
+            <div className="dashboard-speedometer-section">
+                <Speedometer percent={80} duration={1500} />
+                <div className="speedometer-title">Polls Completed</div>
+            </div>
+            <div className="dashboard-polls-reports">
+                <PollsForYou />
                 <div className="dashboard-section">
                     <h2>Reports</h2>
                     <div className="reports-list">

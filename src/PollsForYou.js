@@ -24,50 +24,6 @@ const PollsForYou = () => {
                 "Best method for stress management",
                 "Most important job benefit"
             ]
-        },
-        politics: {
-            title: "Politics",
-            polls: [
-                "Views on environmental policies",
-                "Opinion on universal basic income",
-                "Local government effectiveness",
-                "Education system reforms",
-                "Healthcare policy preferences",
-                "Economic recovery measures"
-            ]
-        },
-        theatre: {
-            title: "Theatre",
-            polls: [
-                "Best theatre production of 2025",
-                "Favorite theatre genre",
-                "Opinion on modern adaptations",
-                "Best local theatre venue",
-                "Preferred seating location",
-                "Most anticipated upcoming show"
-            ]
-        },
-        crime: {
-            title: "Crime",
-            polls: [
-                "Most effective crime prevention methods",
-                "Opinion on rehabilitation programs",
-                "Community policing effectiveness",
-                "Cyber crime concerns",
-                "Public safety measures",
-                "Justice system reforms"
-            ]
-        },
-        psychology: {
-            title: "Psychology",
-            polls: [
-                "Impact of social media on mental health",
-                "Work-life balance importance",
-                "Stress management techniques",
-                "Remote work psychological effects",
-                "Digital wellness practices",
-                "Personal growth priorities"
-            ]
         }
     };
 

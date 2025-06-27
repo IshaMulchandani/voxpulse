@@ -121,3 +121,51 @@
         padding: 1rem;
     }
 }
+
+.speedometer-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.dashboard-speedometer-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2.5rem;
+}
+
+.speedometer-title {
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: #a695ff;
+    margin-top: 0.5rem;
+    margin-bottom: 1.5rem;
+    letter-spacing: 1px;
+}
+
+.dashboard-polls-reports {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+}
+
+@media (max-width: 768px) {
+    .speedometer-container {
+        margin-top: 1rem;
+        margin-bottom: 0.2rem;
+    }
+    .dashboard-speedometer-section {
+        margin-bottom: 1.2rem;
+    }
+    .speedometer-title {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+    .dashboard-polls-reports {
+        gap: 1.2rem;
+    }
+}

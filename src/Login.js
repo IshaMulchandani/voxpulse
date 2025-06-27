@@ -15,7 +15,7 @@ export default function Login(){
                 <br />
                 <input type="password" required placeholder="Enter password..." />
                 <br /><br />
-                <Link to={'/'}><button>Login</button></Link>
+                <Link to={'/dashboard'}><button>Login</button></Link>
             </form>
         </div>
     )

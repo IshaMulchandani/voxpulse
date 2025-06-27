@@ -1,5 +1,7 @@
 import { React, useState } from "react";
 import './Home.css'
+import { Link } from 'react-router-dom'
+import Header from "./Header";
 
 export default function Home(){
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -9,6 +11,7 @@ export default function Home(){
 
     return(
         <div className="homeCont">
+            <Header/>
             <br /><br />
             <div className="sec1">
                 <div className="sec1Cont">
@@ -42,7 +45,7 @@ export default function Home(){
                         <button className="closeModal" onClick={closeModal}>×</button>
                         <h2>Login to Continue</h2>
                         <p>In order to view the next page, you must be logged in.</p>
-                        <button className="modal-btn">Login</button>
+                        <Link to={'/login'}><button className="modal-btn">Login</button></Link>
                     </div>
                 </div>
             )}

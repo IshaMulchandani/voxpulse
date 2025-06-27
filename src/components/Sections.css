@@ -1,0 +1,31 @@
+.section-page {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, #f5f7ff 0%, #ffffff 100%);
+    min-height: calc(100vh - 140px); /* Adjust based on your header/navbar height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.section-title {
+    color: #333;
+    font-size: 3.5rem;
+    font-weight: 600;
+    text-align: center;
+    position: relative;
+    padding-bottom: 1rem;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(90deg, #a695ff, #8b7ad8);
+    border-radius: 2px;
+}

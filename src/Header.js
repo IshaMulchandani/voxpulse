@@ -16,7 +16,7 @@ export default function Header(){
         <div className="headerCont">
             <header className="App-header">
                 <button className="hamburger" onClick={toggleSidebar}>
-                    {isMenuOpen ? <X size={24} style={{position: 'relative', bottom:'4rem'}}/> : <Menu size={24} />}
+                    {isMenuOpen ? <X size={24} style={{position: 'relative',zIndex:5000, bottom:'6rem'}}/> : <Menu size={24} />}
                 </button>
 
                 {isMenuOpen && (

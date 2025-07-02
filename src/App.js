@@ -12,11 +12,16 @@ import Home from './Home';
 import SignUp from './SignUp';
 import Login from './Login';
 import Footer from './Footer'
+import ReportView from './components/ReportView';
+import VotingPage from './components/VotingPage';
 
 function AppHeader() {
   const location = useLocation();
   // Show Header2 for all post-login pages
-  if (["/dashboard", "/polls", "/reports", "/trending"].includes(location.pathname)) {
+  // Show Header2 for all post-login pages
+  if (["/dashboard", "/polls", "/reports", "/trending"].includes(location.pathname) || 
+      location.pathname.startsWith("/report/") || 
+      location.pathname.startsWith("/vote/")) {
     return <Header2 />;
   }
   // Show Header for pre-login or other pages
@@ -36,6 +41,8 @@ function App() {
           <Route path="/polls" element={<PollsForYou />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/trending" element={<TrendingTopics />} />
+          <Route path="/report/:reportType" element={<ReportView />} />
+          <Route path="/vote/:pollId" element={<VotingPage />} />
         </Routes>
         <Footer/>
       </div>

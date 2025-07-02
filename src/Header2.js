@@ -14,11 +14,11 @@ export default function Header2(){
         <div className="header2Cont">
             <header className="App-header">
                 <button className="hamburger" onClick={toggleSidebar}>
-                    {isMenuOpen ? <X size={24} style={{position: 'relative', bottom:'4rem'}}/> : <Menu size={24} />}
+                    {isMenuOpen ? <X size={24} style={{position: 'relative', bottom:'5.5rem'}}/> : <Menu size={24} />}
                 </button>
 
                 {isMenuOpen && (
-                    <div className="sidebar">
+                    <div className="sidebar" style={{zIndex:10000}}>
                     <ul>
                         <li><h3>Trending Topics</h3></li>
                         <li><a href="/">Crime</a></li>

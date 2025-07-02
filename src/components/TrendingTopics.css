@@ -1,0 +1,131 @@
+.section-page {
+    padding: 2rem;
+    min-height: 100vh;
+}
+
+.section-title {
+    color: #333;
+    margin-bottom: 2rem;
+    font-size: 2.5rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.trending-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+    padding: 1rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.trending-card {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    display: flex;
+    flex-direction: column;
+}
+
+.trending-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+
+.card-content {
+    padding: 1.5rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-category {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.category-politics { background-color: #FF6B6B; color: white; }
+.category-technology { background-color: #4ECDC4; color: white; }
+.category-social { background-color: #45B7D1; color: white; }
+.category-entertainment { background-color: #96CEB4; color: white; }
+.category-sports { background-color: #FF9F1C; color: white; }
+.category-education { background-color: #7209B7; color: white; }
+.category-environment { background-color: #40916C; color: white; }
+.category-health { background-color: #FF4D6D; color: white; }
+
+.card-title {
+    font-size: 1.25rem;
+    color: #333;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.card-description {
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    flex-grow: 1;
+}
+
+.card-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: auto;
+}
+
+.btn {
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex: 1;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-vote {
+    background-color: #a695ff;
+    color: white;
+}
+
+.btn-vote:hover {
+    background-color: #0056b3;
+}
+
+.btn-comment {
+    background-color: #f8f9fa;
+    color: #333;
+    border: 1px solid #dee2e6;
+}
+
+.btn-comment:hover {
+    background-color: #e9ecef;
+}
+
+.icon {
+    font-size: 1.1rem;
+}

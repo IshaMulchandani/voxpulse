@@ -1,0 +1,70 @@
+.report-view-container {
+    padding: 2rem;
+    min-height: 100vh;
+}
+
+.report-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.back-arrow {
+    font-size: 1.5rem;
+    color: #333;
+    cursor: pointer;
+    margin-right: 1rem;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.back-arrow:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.report-title {
+    font-size: 2rem;
+    color: #333;
+    margin: 0;
+}
+
+.visualization-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.visualization-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.visualization-header {
+    margin-bottom: 1rem;
+}
+
+.visualization-title {
+    color: #333;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.visualization-description {
+    color: #666;
+    line-height: 1.6;
+}
+
+.chart-container {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    min-height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

@@ -8,7 +8,7 @@ import Header from './Header';
 import Header2 from './Header2';
 import Navbar from './components/Navbar';
 import './App.css';
-import { Home } from 'lucide-react';
+import Home from './Home';
 import SignUp from './SignUp';
 import Login from './Login';
 import Footer from './Footer'

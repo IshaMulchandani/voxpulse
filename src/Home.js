@@ -11,7 +11,6 @@ export default function Home(){
 
     return(
         <div className="homeCont">
-            <Header/>
             <br /><br />
             <div className="sec1">
                 <div className="sec1Cont">

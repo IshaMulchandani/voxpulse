@@ -2,12 +2,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import './Dashboard.css';
 import Header2 from './Header2';
 import Navbar from './components/Navbar';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
     const [progress, setProgress] = useState(0);
     const target = 80;
     const speed = 10;
     const requestRef = useRef();
+    const navigate = useNavigate();
 
     useEffect(() => {
         let start = 0;
@@ -24,6 +26,10 @@ const Dashboard = () => {
         return () => clearTimeout(requestRef.current);
     }, []);
 
+    const handleViewReport = (reportType) => {
+        navigate(`/report/${reportType}`);
+    };
+
     // Sample data for voted polls
     const votedPolls = [
         { id: 1, title: "Best Programming Language", userChoice: "Python" },
@@ -37,15 +43,18 @@ const Dashboard = () => {
     const reports = [
         {
             title: "Vote Analysis Report",
-            description: "Detailed analysis of voting patterns and trends"
+            description: "Detailed analysis of voting patterns and trends",
+            reportType: "vote-analysis"
         },
         {
             title: "Comment Analysis",
-            description: "Analysis of user comments and feedback"
+            description: "Analysis of user comments and feedback",
+            reportType: "comment-analysis"
         },
         {
             title: "Activity Report",
-            description: "Overview of user engagement and participation"
+            description: "Overview of user engagement and participation",
+            reportType: "activity-report"
         }
     ];
 
@@ -117,7 +126,7 @@ const Dashboard = () => {
                             <div key={index} className="report-card">
                                 <h3>{report.title}</h3>
                                 <p>{report.description}</p>
-                                <button className="view-report-btn">View Report</button>
+                                <button className="view-report-btn" onClick={()=> handleViewReport(report.reportType)}>View Report</button>
                             </div>
                         ))}
                     </div>

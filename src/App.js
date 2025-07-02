@@ -14,12 +14,14 @@ import Login from './Login';
 import Footer from './Footer'
 import ReportView from './components/ReportView';
 import VotingPage from './components/VotingPage';
+import CommentsPage from './components/CommentsPage';
+import AdminDashboard from './AdminDashboard';
 
 function AppHeader() {
   const location = useLocation();
   // Show Header2 for all post-login pages
   // Show Header2 for all post-login pages
-  if (["/dashboard", "/polls", "/reports", "/trending"].includes(location.pathname) || 
+  if (["/dashboard", "/polls", "/reports", "/trending","/admin-dashboard"].includes(location.pathname) || 
       location.pathname.startsWith("/report/") || 
       location.pathname.startsWith("/vote/")) {
     return <Header2 />;
@@ -43,6 +45,8 @@ function App() {
           <Route path="/trending" element={<TrendingTopics />} />
           <Route path="/report/:reportType" element={<ReportView />} />
           <Route path="/vote/:pollId" element={<VotingPage />} />
+          <Route path="/comments/:pollId" element={<CommentsPage />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
         </Routes>
         <Footer/>
       </div>

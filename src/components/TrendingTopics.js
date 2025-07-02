@@ -11,8 +11,7 @@ const TrendingTopics = () => {
     };
 
     const handleComment = (pollId) => {
-        // Handle comment action
-        console.log(`Commenting on poll ${pollId}`);
+        navigate(`/comments/${pollId}`);
     };
 
     // Sample trending polls data

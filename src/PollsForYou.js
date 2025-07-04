@@ -1,8 +1,17 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './PollsForYou.css';
 import Navbar from './components/Navbar';
 
 const PollsForYou = () => {
+    const navigate = useNavigate();
+
+    const handleVoteNow = () => {
+        // Generate a random poll ID between 1 and 12 (matching your VotingPage data)
+        const randomPollId = Math.floor(Math.random() * 12) + 1;
+        navigate(`/vote/${randomPollId}`);
+    };
+
     const categories = {
         forYou: {
             title: "For You",
@@ -108,7 +117,7 @@ const PollsForYou = () => {
                                 <div key={pollIndex} className="poll-item">
                                     <div className="poll-content">
                                         <h3 className="poll-title">{poll}</h3>
-                                        <button className="vote-button">Vote Now</button>
+                                        <button className="vote-button" onClick={handleVoteNow}>Vote Now</button>
                                     </div>
                                 </div>
                             ))}

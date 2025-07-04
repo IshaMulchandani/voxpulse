@@ -1,19 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import './Navbar.css';
+import './AdminNavbar.css';
 
-const Navbar = () => {
+const AdminNavbar = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const [activeItem, setActiveItem] = useState(location.pathname.substring(1) || 'dashboard');
+    const [activeItem, setActiveItem] = useState(location.pathname.substring(1) || 'admin-dashboard');
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
 
     const navItems = [
-        { name: 'Dashboard', path: '/dashboard' },
-        { name: 'Polls for you', path: '/polls' },
-        { name: 'Reports', path: '/reports' },
-        { name: 'Trending topics', path: '/trending' }
+        { name: 'Dashboard', path: '/admin-dashboard' },
+        { name: 'Poll Management', path: '/admin-create-polls' },
+        { name: 'Generate Reports', path: '/admin-reports' },
+        { name: 'User Management', path: '/admin-manage-access' }
     ];
 
     const handleNavigation = (path, name) => {
@@ -23,12 +23,6 @@ const Navbar = () => {
 
     const toggleDropdown = () => {
         setDropdownOpen(!dropdownOpen);
-    };
-
-    const handleEditProfile = () => {
-        setDropdownOpen(false);
-        // Add navigation to edit profile page later
-        console.log('Edit Profile clicked');
     };
 
     const handleLogout = () => {
@@ -52,13 +46,13 @@ const Navbar = () => {
     }, []);
 
     return (
-        <nav className="navbar">
-            <div className="navbar-container">
-                <ul className="nav-items">
+        <nav className="admin-navbar">
+            <div className="admin-navbar-container">
+                <ul className="admin-nav-items">
                     {navItems.map((item, index) => (
                         <li 
                             key={index} 
-                            className={`nav-item ${activeItem === item.name ? 'active' : ''}`}
+                            className={`admin-nav-item ${activeItem === item.name ? 'active' : ''}`}
                             onClick={() => handleNavigation(item.path, item.name)}
                         >
                             {item.name}
@@ -66,20 +60,16 @@ const Navbar = () => {
                     ))}
                 </ul>
 
-                <div className="nav-profile" ref={dropdownRef}>
-                    <div className="profile-icon" onClick={toggleDropdown}>
-                        <span>JS</span>
+                <div className="admin-nav-profile" ref={dropdownRef}>
+                    <div className="admin-profile-icon" onClick={toggleDropdown}>
+                        <span>A</span>
                     </div>
                     
                     {dropdownOpen && (
-                        <div className="profile-dropdown">
-                            <div className="dropdown-item" onClick={handleEditProfile}>
-                                <span className="dropdown-icon">👤</span>
-                                <span className="dropdown-text">Edit Profile</span>
-                            </div>
-                            <div className="dropdown-item" onClick={handleLogout}>
-                                <span className="dropdown-icon">🚪</span>
-                                <span className="dropdown-text">Logout</span>
+                        <div className="admin-profile-dropdown">
+                            <div className="admin-dropdown-item" onClick={handleLogout}>
+                                <span className="admin-dropdown-icon">🚪</span>
+                                <span className="admin-dropdown-text">Logout</span>
                             </div>
                         </div>
                     )}
@@ -89,4 +79,4 @@ const Navbar = () => {
     );
 };
 
-export default Navbar;
+export default AdminNavbar;

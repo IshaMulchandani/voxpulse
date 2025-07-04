@@ -1,4 +1,4 @@
-.navbar {
+.admin-navbar {
     background: white;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 0.5rem 0;
@@ -7,7 +7,7 @@
     z-index: 1000;
 }
 
-.navbar-container {
+.admin-navbar-container {
     max-width: 1200px;
     margin: 0 auto;
     display: flex;
@@ -16,19 +16,7 @@
     padding: 0.5rem 2rem;
 }
 
-.navbar-logo {
-    display: flex;
-    align-items: center;
-}
-
-.logo-text {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #a695ff;
-    letter-spacing: 0.5px;
-}
-
-.nav-items {
+.admin-nav-items {
     display: flex;
     gap: 2rem;
     list-style: none;
@@ -36,7 +24,7 @@
     padding: 0;
 }
 
-.nav-item {
+.admin-nav-item {
     font-size: 1rem;
     color: #333;
     cursor: pointer;
@@ -46,17 +34,17 @@
     position: relative;
 }
 
-.nav-item:hover {
+.admin-nav-item:hover {
     color: #a695ff;
     background: rgba(166, 149, 255, 0.1);
 }
 
-.nav-item.active {
+.admin-nav-item.active {
     color: #a695ff;
     background: rgba(166, 149, 255, 0.1);
 }
 
-.nav-item.active::after {
+.admin-nav-item.active::after {
     content: '';
     position: absolute;
     bottom: -2px;
@@ -68,13 +56,13 @@
     border-radius: 2px;
 }
 
-.nav-profile {
+.admin-nav-profile {
     display: flex;
     align-items: center;
     position: relative;
 }
 
-.profile-icon {
+.admin-profile-icon {
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -86,17 +74,17 @@
     transition: transform 0.2s ease;
 }
 
-.profile-icon:hover {
+.admin-profile-icon:hover {
     transform: scale(1.05);
 }
 
-.profile-icon span {
+.admin-profile-icon span {
     color: white;
     font-weight: 600;
     font-size: 0.9rem;
 }
 
-.profile-dropdown {
+.admin-profile-dropdown {
     position: absolute;
     top: 100%;
     right: 0;
@@ -104,44 +92,32 @@
     background: white;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    min-width: 160px;
+    min-width: 140px;
     z-index: 1001;
     border: 1px solid #e0e0e0;
 }
 
-.dropdown-item {
+.admin-dropdown-item {
     display: flex;
     align-items: center;
     gap: 0.75rem;
     padding: 0.75rem 1rem;
     cursor: pointer;
     transition: background-color 0.2s ease;
-    border-bottom: 1px solid #f0f0f0;
+    border-radius: 8px;
 }
 
-.dropdown-item:last-child {
-    border-bottom: none;
-}
-
-.dropdown-item:hover {
+.admin-dropdown-item:hover {
     background-color: #f8f9fa;
 }
 
-.dropdown-item:first-child {
-    border-radius: 8px 8px 0 0;
-}
-
-.dropdown-item:last-child {
-    border-radius: 0 0 8px 8px;
-}
-
-.dropdown-icon {
+.admin-dropdown-icon {
     font-size: 1.1rem;
     width: 20px;
     text-align: center;
 }
 
-.dropdown-text {
+.admin-dropdown-text {
     font-size: 0.9rem;
     color: #333;
     font-weight: 500;
@@ -149,26 +125,22 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .navbar-container {
+    .admin-navbar-container {
         padding: 0.5rem 1rem;
     }
 
-    .nav-items {
+    .admin-nav-items {
         gap: 1rem;
     }
 
-    .nav-item {
+    .admin-nav-item {
         padding: 0.5rem;
         font-size: 0.9rem;
-    }
-
-    .logo-text {
-        font-size: 1.2rem;
     }
 }
 
 @media (max-width: 600px) {
-    .nav-items {
+    .admin-nav-items {
         display: none; /* For mobile, you might want to implement a hamburger menu */
     }
 }

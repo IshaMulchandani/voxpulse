@@ -1,88 +1,171 @@
 .section-page {
-    padding: 2rem;
     min-height: 100vh;
+    padding: 2rem;
+    position: relative;
+    background: transparent;
+}
+
+.section-page::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at 30% 20%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 70% 80%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(132, 255, 119, 0.2) 0%, transparent 50%);
+    z-index: -1;
+    animation: float 18s ease-in-out infinite;
 }
 
 .section-title {
-    color: #333;
-    margin-bottom: 2rem;
-    font-size: 2.5rem;
-    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+    margin-bottom: 3rem;
+    font-size: 3rem;
+    font-weight: 800;
     text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .trending-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2.5rem;
     padding: 1rem;
-    max-width: 1400px;
+    max-width: 1500px;
     margin: 0 auto;
 }
 
 .trending-card {
-    background: white;
-    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 24px;
     overflow: hidden;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    box-shadow: 
+        0 15px 50px 0 rgba(31, 38, 135, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
+    position: relative;
+}
+
+.trending-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: all 0.8s;
+    z-index: 1;
+}
+
+.trending-card:hover::before {
+    left: 100%;
 }
 
 .trending-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 
+        0 25px 70px 0 rgba(31, 38, 135, 0.7),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 .card-image {
     width: 100%;
-    height: 180px;
+    height: 200px;
     object-fit: cover;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    z-index: 2;
 }
 
 .card-content {
-    padding: 1.5rem;
+    padding: 2rem;
     flex-grow: 1;
     display: flex;
     flex-direction: column;
+    position: relative;
+    z-index: 2;
 }
 
 .card-category {
     display: inline-flex;
     align-items: center;
     width: fit-content;
-    padding: 0.4rem 1rem;
-    border-radius: 20px;
+    padding: 0.6rem 1.2rem;
+    border-radius: 25px;
     font-size: 0.8rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s;
 }
 
-.category-politics { background-color: #FF6B6B; color: white; }
-.category-technology { background-color: #4ECDC4; color: white; }
-.category-social { background-color: #45B7D1; color: white; }
-.category-entertainment { background-color: #96CEB4; color: white; }
-.category-sports { background-color: #FF9F1C; color: white; }
-.category-education { background-color: #7209B7; color: white; }
-.category-environment { background-color: #40916C; color: white; }
-.category-health { background-color: #FF4D6D; color: white; }
+.card-category:hover {
+    transform: scale(1.05);
+}
+
+.category-politics { 
+    background: linear-gradient(135deg, #FF6B6B 0%, #FF4757 100%); 
+    color: white; 
+}
+.category-technology { 
+    background: linear-gradient(135deg, #4ECDC4 0%, #26D0CE 100%); 
+    color: white; 
+}
+.category-social { 
+    background: linear-gradient(135deg, #45B7D1 0%, #2E86C1 100%); 
+    color: white; 
+}
+.category-entertainment { 
+    background: linear-gradient(135deg, #96CEB4 0%, #58D68D 100%); 
+    color: white; 
+}
+.category-sports { 
+    background: linear-gradient(135deg, #FF9F1C 0%, #FF7F00 100%); 
+    color: white; 
+}
+.category-education { 
+    background: linear-gradient(135deg, #7209B7 0%, #9C27B0 100%); 
+    color: white; 
+}
+.category-environment { 
+    background: linear-gradient(135deg, #40916C 0%, #27AE60 100%); 
+    color: white; 
+}
+.category-health { 
+    background: linear-gradient(135deg, #FF4D6D 0%, #E74C3C 100%); 
+    color: white; 
+}
 
 .card-title {
-    font-size: 1.25rem;
-    color: #333;
-    margin-bottom: 0.75rem;
-    font-weight: 600;
+    font-size: 1.4rem;
+    color: rgba(255, 255, 255, 0.95);
+    margin-bottom: 1rem;
+    font-weight: 700;
     line-height: 1.4;
 }
 
 .card-description {
-    color: #666;
-    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1rem;
     line-height: 1.6;
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
     flex-grow: 1;
 }
 
@@ -93,39 +176,89 @@
 }
 
 .btn {
-    padding: 0.6rem 1.2rem;
-    border-radius: 8px;
-    font-weight: 500;
+    padding: 0.8rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 600;
     font-size: 0.9rem;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     flex: 1;
     border: none;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: all 0.6s;
+}
+
+.btn:hover::before {
+    left: 100%;
 }
 
 .btn-vote {
-    background-color: #a695ff;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
 }
 
 .btn-vote:hover {
-    background-color: #0056b3;
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(102, 126, 234, 0.5);
 }
 
 .btn-comment {
-    background-color: #f8f9fa;
-    color: #333;
-    border: 1px solid #dee2e6;
+    background: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
 }
 
 .btn-comment:hover {
-    background-color: #e9ecef;
+    background: rgba(255, 255, 255, 0.3);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.2);
 }
 
 .icon {
     font-size: 1.1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .section-page {
+        padding: 1rem;
+    }
+    
+    .section-title {
+        font-size: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .trending-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .card-content {
+        padding: 1.5rem;
+    }
+    
+    .card-actions {
+        flex-direction: column;
+    }
 }

@@ -45,63 +45,57 @@ export default function Login() {
     };
 
     return (
-        <div className="logInCont">
-            <h1>Log In</h1>
-            
-            {/* Error Message */}
-            {error && (
-                <div style={{
-                    backgroundColor: '#fee', 
-                    border: '1px solid #f66', 
-                    color: '#c33', 
-                    padding: '10px', 
-                    borderRadius: '5px', 
-                    marginBottom: '15px'
-                }}>
-                    {error}
+        <div className="login-page">
+            <div className="logInCont">
+                <h2>Login</h2>
+                
+                {/* Error Message */}
+                {error && (
+                    <div className="error-message">
+                        {error}
+                    </div>
+                )}
+
+                <form onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label htmlFor="username">Email / Username</label>
+                        <input 
+                            type="text" 
+                            id="username"
+                            required 
+                            placeholder="Enter email or username..." 
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            disabled={loading}
+                        />
+                    </div>
+                    
+                    <div className="form-group">
+                        <label htmlFor="password">Password</label>
+                        <input 
+                            type="password" 
+                            id="password"
+                            required 
+                            placeholder="Enter password..." 
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            disabled={loading}
+                        />
+                    </div>
+                    
+                    <button 
+                        type="submit"
+                        className="login-btn"
+                        disabled={loading}
+                    >
+                        {loading ? 'Logging in...' : 'Login'}
+                    </button>
+                </form>
+
+                <div className="login-links">
+                    <p>Don't have an account? <a href="/signup">Sign up here</a></p>
+                    <p><a href="/forgot-password">Forgot Password?</a></p>
                 </div>
-            )}
-
-            <form onSubmit={handleSubmit}>
-                <label htmlFor="username">Email / Username</label>
-                <br />
-                <input 
-                    type="text" 
-                    id="username"
-                    required 
-                    placeholder="Enter email or username..." 
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    disabled={loading}
-                />
-                <br /><br />
-                <label htmlFor="password">Password</label>
-                <br />
-                <input 
-                    type="password" 
-                    id="password"
-                    required 
-                    placeholder="Enter password..." 
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    disabled={loading}
-                />
-                <br /><br />
-                <button 
-                    type="submit"
-                    disabled={loading}
-                    style={{
-                        opacity: loading ? 0.6 : 1,
-                        cursor: loading ? 'not-allowed' : 'pointer'
-                    }}
-                >
-                    {loading ? 'Logging in...' : 'Login'}
-                </button>
-            </form>
-
-            <div style={{ marginTop: '20px', textAlign: 'center' }}>
-                <p>Don't have an account? <a href="/signup">Sign up here</a></p>
-                <p><a href="/forgot-password">Forgot Password?</a></p>
             </div>
         </div>
     );

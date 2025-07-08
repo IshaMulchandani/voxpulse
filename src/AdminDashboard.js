@@ -54,16 +54,16 @@ const AdminDashboard = () => {
                     <div className="action-card">
                         <h3>Poll Management</h3>
                         <div className="action-buttons">
-                            <button className="action-btn btn-primary" onClick={() => navigate('/admin-create-polls')}>Create Poll</button>
-                            <button className="action-btn btn-secondary">View All</button>
+                            <button className="action-btn btn-primary" onClick={() => navigate('/admin-create-poll')}>Create Poll</button>
+                            <button className="action-btn btn-secondary" onClick={() => navigate('/admin-create-polls')}>View All</button>
                         </div>
                     </div>
 
                     <div className="action-card">
                         <h3>User Management</h3>
                         <div className="action-buttons">
-                            <button className="action-btn btn-primary" onClick={()=>navigate('/admin-manage-access')}>View Users</button>
-                            <button className="action-btn btn-secondary">Reports</button>
+                            <button className="action-btn btn-primary" onClick={()=>navigate('/admin-create-user')}>Add Users</button>
+                            <button className="action-btn btn-secondary" onClick={()=>navigate('/admin-manage-access')}>View All</button>
                         </div>
                     </div>
                 </div>

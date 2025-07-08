@@ -77,7 +77,7 @@ const AdminReportView = () => {
         gender: ['Male', 'Female', 'Non-binary', 'Prefer not to say'],
         age: ['18-24', '25-34', '35-44', '45-54', '55-64', '65+'],
         profession: ['Technology', 'Healthcare', 'Education', 'Finance', 'Retail', 'Manufacturing', 'Government', 'Other'],
-        income: ['Under $30k', '$30k-$50k', '$50k-$75k', '$75k-$100k', '$100k-$150k', 'Over $150k']
+        income: ['Under ₹25L', '₹25L-₹40L', '₹40L-₹60L', '₹60L-₹80L', '₹80L-₹1.2Cr', 'Over ₹1.2Cr']
     };
 
     // Generate dynamic data based on filters

@@ -34,6 +34,7 @@
     padding: 3rem;
     width: 100%;
     max-width: 500px;
+    margin: 0 auto;
     box-shadow: 
         0 15px 50px 0 rgba(31, 38, 135, 0.5),
         inset 0 1px 0 rgba(255, 255, 255, 0.4);
@@ -93,7 +94,7 @@ form {
     flex-basis: 100%;
 }
 
-form:hover {
+.signUpCont:hover {
     transform: translateY(-5px) scale(1.01);
     box-shadow: 
         0 25px 70px 0 rgba(31, 38, 135, 0.7),
@@ -332,7 +333,8 @@ form button:active {
 /* Responsive design */
 @media (max-width: 768px) {
     .signUpCont {
-        padding: 1rem;
+        padding: 1.5rem;
+        margin: 1rem;
     }
     
     .signUpCont h1 {
@@ -341,12 +343,12 @@ form button:active {
     }
     
     form {
-        padding: 2rem 1.5rem;
+        padding: 1.5rem 1.5rem;
         border-radius: 16px;
     }
     
     form input, form select {
-        height: 2.5rem;
+        height: 1.5rem;
         font-size: 0.9rem;
     }
     
@@ -361,6 +363,17 @@ form button:active {
     from {
         opacity: 0;
         transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
     }
     to {
         opacity: 1;

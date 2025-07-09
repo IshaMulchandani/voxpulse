@@ -72,13 +72,14 @@ export default function SignUp(){
         try {
             const result = await signUpUser(email, password, userData);
             
+            console.log('Signup result:', result); // Debug log
+            
             // Check if signup was successful - handle both success formats
             if (result && (result.success === true || result.success !== false)) {
                 setSuccess(true);
-                // Redirect to dashboard immediately
-                setTimeout(() => {
-                    navigate('/Dashboard'); // Updated to match Dashboard.js
-                }, 1500);
+                console.log('Attempting to navigate to /dashboard'); // Debug log
+                // Force immediate redirect without timeout
+                navigate('/dashboard', { replace: true });
             } else {
                 setError(result ? result.error : 'Signup failed');
             }
@@ -89,9 +90,8 @@ export default function SignUp(){
             // Check if error is just a redirect issue, not actual signup failure
             if (error.message && !error.message.includes('auth/')) {
                 setSuccess(true);
-                setTimeout(() => {
-                    navigate('/Dashboard');
-                }, 1500);
+                console.log('Error occurred but attempting to navigate to /dashboard'); // Debug log
+                navigate('/dashboard');
             } else {
                 setError('An unexpected error occurred');
             }

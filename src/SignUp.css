@@ -132,6 +132,20 @@ input:focus, select:focus {
     transform: translateY(-2px);
 }
 
+/* Keep translucent background when input has value */
+input:not(:placeholder-shown), select:not([value=""]) {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Ensure focused state with value stays translucent */
+input:focus:not(:placeholder-shown), select:focus:not([value=""]) {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(102, 126, 234, 0.8);
+    box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+    transform: translateY(-2px);
+}
+
 .submit-btn {
     padding: 1.2rem 2rem;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

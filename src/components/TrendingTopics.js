@@ -6,12 +6,8 @@ import './TrendingTopics.css';
 const TrendingTopics = () => {
     const navigate = useNavigate();
     
-    const handleVote = (pollId) => {
-        navigate(`/vote/${pollId}`);
-    };
-
-    const handleComment = (pollId) => {
-        navigate(`/comments/${pollId}`);
+    const handleCardClick = (pollId) => {
+        navigate(`/poll/${pollId}`);
     };
 
     // Sample trending polls data
@@ -108,7 +104,11 @@ const TrendingTopics = () => {
             <h1 className="section-title">Trending Topics</h1>
             <div className="trending-grid">
                 {trendingPolls.map(poll => (
-                    <div key={poll.id} className="trending-card">
+                    <div 
+                        key={poll.id} 
+                        className="trending-card"
+                        onClick={() => handleCardClick(poll.id)}
+                    >
                         <img src={poll.image} alt={poll.title} className="card-image" />
                         <div className="card-content">
                             <span className={`card-category category-${poll.category}`}>
@@ -116,20 +116,6 @@ const TrendingTopics = () => {
                             </span>
                             <h2 className="card-title">{poll.title}</h2>
                             <p className="card-description">{poll.description}</p>
-                            <div className="card-actions">
-                                <button 
-                                    className="btn btn-vote" 
-                                    onClick={() => handleVote(poll.id)}
-                                >
-                                    Vote Now
-                                </button>
-                                <button 
-                                    className="btn btn-comment"
-                                    onClick={() => handleComment(poll.id)}
-                                >
-                                    Comment
-                                </button>
-                            </div>
                         </div>
                     </div>
                 ))}

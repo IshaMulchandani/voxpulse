@@ -1,7 +1,10 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminNavbar from './AdminNavbar';
 import './AdminPages.css';
+import { db } from '../firebase';
+import { collection, addDoc, Timestamp } from 'firebase/firestore';
 
 const CreatePoll = () => {
     const navigate = useNavigate();
@@ -64,44 +67,47 @@ const CreatePoll = () => {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        
         // Validation
         if (!formData.title.trim()) {
             setNotification({ type: 'error', message: 'Poll title is required' });
             return;
         }
-        
         if (!formData.description.trim()) {
             setNotification({ type: 'error', message: 'Poll description is required' });
             return;
         }
-        
         if (!formData.category) {
             setNotification({ type: 'error', message: 'Please select a category' });
             return;
         }
-        
         const validOptions = formData.options.filter(option => option.trim() !== '');
         if (validOptions.length < 2) {
             setNotification({ type: 'error', message: 'At least 2 options are required' });
             return;
         }
 
-        // Simulate poll creation
-        console.log('Creating poll:', {
-            ...formData,
-            options: validOptions,
-            createdAt: new Date().toISOString()
-        });
-
-        setNotification({ type: 'success', message: 'Poll created successfully!' });
-        
-        // Redirect after 2 seconds
-        setTimeout(() => {
-            navigate('/admin-create-polls');
-        }, 2000);
+        // Save poll to Firestore
+        try {
+            await addDoc(collection(db, 'polls'), {
+                title: formData.title,
+                description: formData.description,
+                category: formData.category,
+                options: validOptions,
+                imageUrl: formData.imageUrl,
+                duration: formData.duration,
+                createdAt: Timestamp.now(),
+                votes: Array(validOptions.length).fill(0)
+            });
+            setNotification({ type: 'success', message: 'Poll created successfully!' });
+            setTimeout(() => {
+                navigate('/admin-create-polls');
+            }, 2000);
+        } catch (error) {
+            setNotification({ type: 'error', message: 'Failed to create poll. Please try again.' });
+            console.error('Error adding poll:', error);
+        }
     };
 
     const handleCancel = () => {

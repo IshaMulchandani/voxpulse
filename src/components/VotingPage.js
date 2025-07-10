@@ -72,7 +72,7 @@ const VotingPage = () => {
         <div>
             <Navbar />
             <div className="voting-page">
-                <div className="back-arrow" onClick={() => navigate('/trending')}>
+                <div className="back-arrow" onClick={() => navigate(`/poll/${pollId}`)}>
                     ←
                 </div>
                 <div className="voting-container">
@@ -86,7 +86,7 @@ const VotingPage = () => {
         <div>
             <Navbar />
             <div className="voting-page">
-                <div className="back-arrow" onClick={() => navigate('/trending')}>
+                <div className="back-arrow" onClick={() => navigate(`/poll/${pollId}`)}>
                     ←
                 </div>
                 <div className="voting-container">

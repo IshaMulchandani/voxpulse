@@ -7,7 +7,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyDvzP5mSZkL4HLVGZPMbbXiE_0MpNIQvUA",
   authDomain: "voxpulse-2c308.firebaseapp.com",
   projectId: "voxpulse-2c308",
-  storageBucket: "voxpulse-2c308.firebasestorage.app",
+  storageBucket: "voxpulse-2c308.appspot.com",
   messagingSenderId: "560260025348",
   appId: "1:560260025348:web:f258b8e3b4491a6a1bb951",
   measurementId: "G-NP5EZ03N5W"

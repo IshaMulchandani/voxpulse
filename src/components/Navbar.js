@@ -1,4 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { getAuth } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../firebase';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './Navbar.css';
 
@@ -7,7 +10,27 @@ const Navbar = () => {
     const location = useLocation();
     const [activeItem, setActiveItem] = useState(location.pathname.substring(1) || 'dashboard');
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [userName, setUserName] = useState('');
     const dropdownRef = useRef(null);
+    // Fetch user name from Firestore
+    useEffect(() => {
+        const fetchUserName = async () => {
+            try {
+                const auth = getAuth();
+                const user = auth.currentUser;
+                if (user) {
+                    const userDoc = await getDoc(doc(db, 'users', user.uid));
+                    if (userDoc.exists()) {
+                        const data = userDoc.data();
+                        setUserName(data.name || data.email || '');
+                    }
+                }
+            } catch (e) {
+                setUserName('');
+            }
+        };
+        fetchUserName();
+    }, []);
 
     const navItems = [
         { name: 'Dashboard', path: '/dashboard' },
@@ -68,9 +91,11 @@ const Navbar = () => {
 
                 <div className="nav-profile" ref={dropdownRef}>
                     <div className="profile-icon" onClick={toggleDropdown}>
-                        <span>JS</span>
+                 
+                        {userName && (
+                            <span className="user-name-navbar" style={{ marginLeft: 8, fontWeight: 500, fontSize: '1rem' }}>{userName}</span>
+                        )}
                     </div>
-                    
                     {dropdownOpen && (
                         <div className="profile-dropdown">
                             <div className="dropdown-item" onClick={handleEditProfile}>

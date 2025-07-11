@@ -993,12 +993,12 @@
 }
 
 .category-badge.poll-report {
-    background: #007bff;
+    background: linear-gradient(135deg, #7c3aed 0%, #f857a6 100%);
     color: white;
 }
 
-.category-badge.system-report {
-    background: #6c757d;
+ .category-badge.system-report {
+    background: linear-gradient(135deg, #667eea 0%, #43e97b 100%);
     color: white;
 }
 
@@ -1007,18 +1007,20 @@
 }
 
 .view-report-btn {
-    background: #28a745;
+    background: linear-gradient(135deg, #7c3aed 0%, #f857a6 100%);
     color: white;
     border: none;
     padding: 0.8rem 1.5rem;
-    border-radius: 8px;
-    font-weight: 500;
+    border-radius: 50px;
+    font-weight: 700;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 6px 20px rgba(120,119,198,0.18);
 }
 
-.view-report-btn:hover {
-    background: #218838;
+ .view-report-btn:hover {
+    filter: brightness(1.08);
+    transform: translateY(-3px) scale(1.04);
 }
 
 /* Create Report Form Styles */
@@ -1030,12 +1032,20 @@
 }
 
 .create-report-form {
-    background: white;
-    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1.5px solid rgba(120,119,198,0.18);
+    border-radius: 24px;
     padding: 2rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 
+        0 15px 50px 0 rgba(120,119,198,0.18),
+        0 8px 32px 0 rgba(102,126,234,0.12),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
     max-width: 1000px;
     margin: 0 auto;
+    position: relative;
+    overflow: hidden;
 }
 
 .report-type-selection {

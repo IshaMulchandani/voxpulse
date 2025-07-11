@@ -632,50 +632,6 @@
     padding: 0 1rem;
 }
 
-.create-user-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: rgba(255, 255, 255, 0.95);
-    border: none;
-    padding: 1rem 2.5rem;
-    border-radius: 50px;
-    cursor: pointer;
-    font-weight: 700;
-    font-size: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    display: inline-flex;
-    align-items: center;
-    gap: 0.8rem;
-    box-shadow: 
-        0 8px 25px rgba(102, 126, 234, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    position: relative;
-    overflow: hidden;
-}
-
-.create-user-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: all 0.6s;
-}
-
-.create-user-btn:hover::before {
-    left: 100%;
-}
-
-.create-user-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 
-        0 15px 40px rgba(102, 126, 234, 0.5),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
-}
-
 .users-list {
     display: flex;
     flex-direction: column;
@@ -910,134 +866,16 @@
 }
 
 /* Create User Form Styles */
-.create-user-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 3rem;
-    padding: 0 1rem;
-}
 
-.create-user-form {
-    background: rgba(255, 255, 255, 0.12);
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    border-radius: 24px;
-    padding: 3rem;
-    box-shadow: 
-        0 15px 50px 0 rgba(31, 38, 135, 0.5),
-        inset 0 1px 0 rgba(255, 255, 255, 0.4);
-    max-width: 900px;
-    margin: 0 auto;
-    position: relative;
-    overflow: hidden;
-}
 
-.create-user-form::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 200px;
-    height: 200px;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-    border-radius: 50%;
-    transform: translate(80px, -80px);
-}
 
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    position: relative;
-    z-index: 1;
-}
 
-.avatar-input-group {
-    display: flex;
-    gap: 1rem;
-    align-items: flex-end;
-}
 
-.avatar-input-group input {
-    flex: 1;
-}
 
-.generate-avatar-btn {
-    background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
-    color: rgba(255, 255, 255, 0.95);
-    border: none;
-    padding: 0.8rem 1.5rem;
-    border-radius: 50px;
-    cursor: pointer;
-    font-weight: 700;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    white-space: nowrap;
-    box-shadow: 0 6px 20px rgba(78, 205, 196, 0.3);
-    position: relative;
-    overflow: hidden;
-}
 
-.generate-avatar-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: all 0.6s;
-}
 
-.generate-avatar-btn:hover::before {
-    left: 100%;
-}
 
-.generate-avatar-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 30px rgba(78, 205, 196, 0.5);
-}
 
-.avatar-preview {
-    margin-top: 1.5rem;
-    text-align: center;
-    position: relative;
-}
-
-.avatar-preview::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100px;
-    height: 100px;
-    background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #f5576c);
-    border-radius: 50%;
-    z-index: -1;
-    animation: rotate 3s linear infinite;
-}
-
-.avatar-preview img {
-    width: 90px;
-    height: 90px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid rgba(255, 255, 255, 0.8);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-}
-
-.help-text {
-    display: block;
-    margin-top: 0.8rem;
-    font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.6);
-    font-style: italic;
-}
 
 /* Reports Management Styles */
 .reports-management-header {
@@ -1653,8 +1491,7 @@
         margin-top: 0.5rem;
     }
 
-    .user-management-header,
-    .create-user-header {
+    .user-management-header {
         flex-direction: column;
         gap: 1.5rem;
         text-align: center;
@@ -1694,24 +1531,7 @@
         padding: 0.7rem 1rem;
     }
 
-    .form-row {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
 
-    .create-user-form {
-        margin: 0 1rem;
-        padding: 1.5rem;
-    }
-
-    .avatar-input-group {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    .generate-avatar-btn {
-        align-self: stretch;
-    }
 
     .report-management-card {
         flex-direction: column;

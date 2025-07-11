@@ -39,10 +39,6 @@ const AdminManageAccess = () => {
         fetchUsers();
     }, []);
 
-    const handleCreateUser = () => {
-        navigate('/admin-create-user');
-    };
-
     const handleGrantAdmin = (userId) => {
         setUsers(prevUsers => 
             prevUsers.map(user => 
@@ -90,12 +86,6 @@ const AdminManageAccess = () => {
                 <div className="admin-page-container">
                     <div className="user-management-header">
                         <h1 className="admin-page-title">User Management</h1>
-                        <button 
-                            className="create-user-btn"
-                            onClick={handleCreateUser}
-                        >
-                            + Create User
-                        </button>
                     </div>
 
                     {notification && (

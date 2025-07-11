@@ -50,8 +50,7 @@ const Navbar = () => {
 
     const handleEditProfile = () => {
         setDropdownOpen(false);
-        // Add navigation to edit profile page later
-        console.log('Edit Profile clicked');
+        navigate('/edit-profile');
     };
 
     const handleLogout = () => {

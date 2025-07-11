@@ -4,6 +4,7 @@ import Dashboard from './Dashboard';
 import PollsForYou from './PollsForYou';
 import Reports from './components/Reports';
 import TrendingTopics from './components/TrendingTopics';
+import PollPage from './components/PollPage';
 import Header from './Header';
 import Header2 from './Header2';
 import Navbar from './components/Navbar';
@@ -16,14 +17,23 @@ import ReportView from './components/ReportView';
 import VotingPage from './components/VotingPage';
 import CommentsPage from './components/CommentsPage';
 import AdminDashboard from './AdminDashboard';
+import AdminCreatePolls from './components/AdminCreatePolls';
+import CreatePoll from './components/CreatePoll';
+import CreateUser from './components/CreateUser';
+import CreateReport from './components/CreateReport';
+import AdminReportView from './components/AdminReportView';
+import AdminReports from './components/AdminReports';
+import AdminManageAccess from './components/AdminManageAccess';
 
 function AppHeader() {
   const location = useLocation();
   // Show Header2 for all post-login pages
-  // Show Header2 for all post-login pages
-  if (["/dashboard", "/polls", "/reports", "/trending","/admin-dashboard"].includes(location.pathname) || 
+  if (["/dashboard", "/polls", "/reports", "/trending"].includes(location.pathname) || 
       location.pathname.startsWith("/report/") || 
-      location.pathname.startsWith("/vote/")) {
+      location.pathname.startsWith("/poll/") ||
+      location.pathname.startsWith("/vote/") ||
+      location.pathname.startsWith("/comments/") ||
+      location.pathname.startsWith("/admin-")) {
     return <Header2 />;
   }
   // Show Header for pre-login or other pages
@@ -43,10 +53,18 @@ function App() {
           <Route path="/polls" element={<PollsForYou />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/trending" element={<TrendingTopics />} />
+          <Route path="/poll/:pollId" element={<PollPage />} />
           <Route path="/report/:reportType" element={<ReportView />} />
           <Route path="/vote/:pollId" element={<VotingPage />} />
           <Route path="/comments/:pollId" element={<CommentsPage />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/admin-create-polls" element={<AdminCreatePolls />} />
+          <Route path="/admin-create-poll" element={<CreatePoll />} />
+          <Route path="/admin-reports" element={<AdminReports />} />
+          <Route path="/admin-create-report" element={<CreateReport />} />
+          <Route path="/admin-report-view/:reportId" element={<AdminReportView />} />
+          <Route path="/admin-manage-access" element={<AdminManageAccess />} />
+          <Route path="/admin-create-user" element={<CreateUser />} />
         </Routes>
         <Footer/>
       </div>

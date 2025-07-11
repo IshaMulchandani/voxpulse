@@ -1,9 +1,10 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './AdminDashboard.css';
-import Header2 from './Header2';
-import Navbar from './components/Navbar';
+import AdminNavbar from './components/AdminNavbar';
 
 const AdminDashboard = () => {
+    const navigate = useNavigate();
     const stats = [
         { title: 'Total Users', value: '1,234' },
         { title: 'Active Polls', value: '45' },
@@ -36,6 +37,7 @@ const AdminDashboard = () => {
 
     return (
         <div className="admin-dashboard">
+            <AdminNavbar />
             <div style={{ padding: '2rem' }}>
                 <h1 style={{ marginBottom: '2rem' }}>Admin Dashboard</h1>
 
@@ -52,16 +54,16 @@ const AdminDashboard = () => {
                     <div className="action-card">
                         <h3>Poll Management</h3>
                         <div className="action-buttons">
-                            <button className="action-btn btn-primary">Create Poll</button>
-                            <button className="action-btn btn-secondary">View All</button>
+                            <button className="action-btn btn-primary" onClick={() => navigate('/admin-create-poll')}>Create Poll</button>
+                            <button className="action-btn btn-secondary" onClick={() => navigate('/admin-create-polls')}>View All</button>
                         </div>
                     </div>
 
                     <div className="action-card">
                         <h3>User Management</h3>
                         <div className="action-buttons">
-                            <button className="action-btn btn-primary">View Users</button>
-                            <button className="action-btn btn-secondary">Reports</button>
+                            <button className="action-btn btn-primary" onClick={()=>navigate('/admin-create-user')}>Add Users</button>
+                            <button className="action-btn btn-secondary" onClick={()=>navigate('/admin-manage-access')}>View All</button>
                         </div>
                     </div>
                 </div>

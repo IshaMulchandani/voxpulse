@@ -24,6 +24,7 @@ import AdminReportView from './components/AdminReportView';
 import AdminReports from './components/AdminReports';
 import AdminManageAccess from './components/AdminManageAccess';
 import EditProfile from './components/EditProfile';
+import CategoryPage from './components/CategoryPage';
 
 function AppHeader() {
   const location = useLocation();
@@ -33,7 +34,8 @@ function AppHeader() {
       location.pathname.startsWith("/poll/") ||
       location.pathname.startsWith("/vote/") ||
       location.pathname.startsWith("/comments/") ||
-      location.pathname.startsWith("/admin-")) {
+      location.pathname.startsWith("/admin-") ||
+      location.pathname.startsWith("/category/")) {
     return <Header2 />;
   }
   // Show Header for pre-login or other pages
@@ -65,6 +67,7 @@ function App() {
           <Route path="/admin-create-report" element={<CreateReport />} />
           <Route path="/admin-report-view/:reportId" element={<AdminReportView />} />
           <Route path="/admin-manage-access" element={<AdminManageAccess />} />
+          <Route path="/category/:categoryName" element={<CategoryPage />} />
         </Routes>
         <Footer/>
       </div>

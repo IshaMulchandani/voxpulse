@@ -248,6 +248,7 @@ export default function SignUp(){
                         opacity: loading ? 0.6 : 1,
                         cursor: loading ? 'not-allowed' : 'pointer'
                     }}
+                    onSubmit={navigate('/dashboard')}
                 >
                     {loading ? 'Creating Account...' : 'Submit'}
                 </button>

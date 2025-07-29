@@ -88,6 +88,8 @@ const CreatePoll = () => {
             return;
         }
 
+        
+
         // Save poll to Firestore
         try {
             await addDoc(collection(db, 'polls'), {

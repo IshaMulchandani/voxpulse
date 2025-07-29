@@ -228,8 +228,12 @@ const CreateReport = () => {
                                             <div className="poll-info">
                                                 <h4>{poll.title}</h4>
                                                 <div className="poll-stats">
-                                                    <span>{poll.votes} votes</span>
-                                                    <span>Created: {formatDate(poll.createdOn)}</span>
+                                                    <div className="stat-item">
+                                                        <span>📊 {poll.votes} votes</span>
+                                                    </div>
+                                                    <div className="stat-item">
+                                                        <span>📅 {formatDate(poll.createdOn)}</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div className="selection-indicator">

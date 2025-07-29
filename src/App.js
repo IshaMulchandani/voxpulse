@@ -4,6 +4,7 @@ import Dashboard from './Dashboard';
 import PollsForYou from './PollsForYou';
 import Reports from './components/Reports';
 import TrendingTopics from './components/TrendingTopics';
+import PollPage from './components/PollPage';
 import Header from './Header';
 import Header2 from './Header2';
 import Navbar from './components/Navbar';
@@ -29,6 +30,7 @@ function AppHeader() {
   // Show Header2 for all post-login pages
   if (["/dashboard", "/polls", "/reports", "/trending"].includes(location.pathname) || 
       location.pathname.startsWith("/report/") || 
+      location.pathname.startsWith("/poll/") ||
       location.pathname.startsWith("/vote/") ||
       location.pathname.startsWith("/comments/") ||
       location.pathname.startsWith("/admin-")) {
@@ -51,6 +53,7 @@ function App() {
           <Route path="/polls" element={<PollsForYou />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/trending" element={<TrendingTopics />} />
+          <Route path="/poll/:pollId" element={<PollPage />} />
           <Route path="/report/:reportType" element={<ReportView />} />
           <Route path="/vote/:pollId" element={<VotingPage />} />
           <Route path="/comments/:pollId" element={<CommentsPage />} />

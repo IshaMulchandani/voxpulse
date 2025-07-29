@@ -3,9 +3,12 @@ import {
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
   signOut, 
-  onAuthStateChanged 
+  onAuthStateChanged,
+  updatePassword,
+  reauthenticateWithCredential,
+  EmailAuthProvider
 } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from './firebase';
 
 // Sign up new user
@@ -68,4 +71,52 @@ export const getCurrentUserData = async (uid) => {
 // Listen for authentication state changes
 export const onAuthStateChange = (callback) => {
   return onAuthStateChanged(auth, callback);
+};
+
+// Change user password
+export const changePassword = async (currentPassword, newPassword) => {
+  try {
+    const user = auth.currentUser;
+    if (!user) {
+      return { success: false, error: "No user is currently signed in" };
+    }
+
+    // Reauthenticate user with current password
+    const credential = EmailAuthProvider.credential(user.email, currentPassword);
+    await reauthenticateWithCredential(user, credential);
+
+    // Update password
+    await updatePassword(user, newPassword);
+    
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+// Request admin access
+export const requestAdminAccess = async (userId, userData) => {
+  try {
+    // Update user document with admin request timestamp
+    await updateDoc(doc(db, 'users', userId), {
+      adminAccessRequested: true,
+      adminRequestDate: new Date().toISOString(),
+      adminRequestStatus: 'pending'
+    });
+
+    // Optionally, create a separate admin requests collection for tracking
+    await setDoc(doc(db, 'adminRequests', userId), {
+      userId: userId,
+      userName: userData.name,
+      userEmail: userData.email,
+      requestDate: new Date().toISOString(),
+      status: 'pending',
+      reviewedBy: null,
+      reviewDate: null
+    });
+    
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
 };

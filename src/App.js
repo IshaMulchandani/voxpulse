@@ -19,21 +19,23 @@ import CommentsPage from './components/CommentsPage';
 import AdminDashboard from './AdminDashboard';
 import AdminCreatePolls from './components/AdminCreatePolls';
 import CreatePoll from './components/CreatePoll';
-import CreateUser from './components/CreateUser';
 import CreateReport from './components/CreateReport';
 import AdminReportView from './components/AdminReportView';
 import AdminReports from './components/AdminReports';
 import AdminManageAccess from './components/AdminManageAccess';
+import EditProfile from './components/EditProfile';
+import CategoryPage from './components/CategoryPage';
 
 function AppHeader() {
   const location = useLocation();
   // Show Header2 for all post-login pages
-  if (["/dashboard", "/polls", "/reports", "/trending"].includes(location.pathname) || 
+  if (["/dashboard", "/polls", "/reports", "/trending", "/edit-profile"].includes(location.pathname) || 
       location.pathname.startsWith("/report/") || 
       location.pathname.startsWith("/poll/") ||
       location.pathname.startsWith("/vote/") ||
       location.pathname.startsWith("/comments/") ||
-      location.pathname.startsWith("/admin-")) {
+      location.pathname.startsWith("/admin-") ||
+      location.pathname.startsWith("/category/")) {
     return <Header2 />;
   }
   // Show Header for pre-login or other pages
@@ -53,6 +55,7 @@ function App() {
           <Route path="/polls" element={<PollsForYou />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/trending" element={<TrendingTopics />} />
+          <Route path="/edit-profile" element={<EditProfile />} />
           <Route path="/poll/:pollId" element={<PollPage />} />
           <Route path="/report/:reportType" element={<ReportView />} />
           <Route path="/vote/:pollId" element={<VotingPage />} />
@@ -64,7 +67,7 @@ function App() {
           <Route path="/admin-create-report" element={<CreateReport />} />
           <Route path="/admin-report-view/:reportId" element={<AdminReportView />} />
           <Route path="/admin-manage-access" element={<AdminManageAccess />} />
-          <Route path="/admin-create-user" element={<CreateUser />} />
+          <Route path="/category/:categoryName" element={<CategoryPage />} />
         </Routes>
         <Footer/>
       </div>

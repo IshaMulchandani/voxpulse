@@ -5,14 +5,17 @@ import Navbar from './components/Navbar';
 import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
+
     const [progress, setProgress] = useState(0);
-    const target = 80;
-    const speed = 10;
-    const requestRef = useRef();
+    const [votedPolls, setVotedPolls] = useState([]);
+    const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
+    const requestRef = useRef();
 
     useEffect(() => {
         let start = 0;
+        const target = 80;
+        const speed = 10;
         function animate() {
             if (start < target) {
                 start += 1;
@@ -26,18 +29,47 @@ const Dashboard = () => {
         return () => clearTimeout(requestRef.current);
     }, []);
 
+    useEffect(() => {
+        const fetchVotedPolls = async () => {
+            setLoading(true);
+            try {
+                const { getAuth } = await import('firebase/auth');
+                const { db } = await import('./firebase');
+                const { collection, getDocs } = await import('firebase/firestore');
+                const auth = getAuth();
+                const user = auth.currentUser;
+                if (!user) {
+                    setVotedPolls([]);
+                    setLoading(false);
+                    return;
+                }
+                // Fetch all polls
+                const pollsSnapshot = await getDocs(collection(db, 'polls'));
+                const voted = [];
+                pollsSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    // Check if user has voted (assume votesByUser: { userId: optionIndex })
+                    if (data.votesByUser && data.votesByUser[user.uid] !== undefined) {
+                        voted.push({
+                            id: doc.id,
+                            title: data.title,
+                            userChoice: data.options[data.votesByUser[user.uid]]
+                        });
+                    }
+                });
+                setVotedPolls(voted);
+            } catch (err) {
+                setVotedPolls([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchVotedPolls();
+    }, []);
+
     const handleViewReport = (reportType) => {
         navigate(`/report/${reportType}`);
     };
-
-    // Sample data for voted polls
-    const votedPolls = [
-        { id: 1, title: "Best Programming Language", userChoice: "Python" },
-        { id: 2, title: "Favorite Learning Platform", userChoice: "Udemy" },
-        { id: 3, title: "Most Used Framework", userChoice: "React" },
-        { id: 4, title: "Preferred Database", userChoice: "MongoDB" },
-        { id: 5, title: "Best Code Editor", userChoice: "VS Code" }
-    ];
 
     // Reports data
     const reports = [
@@ -111,12 +143,21 @@ const Dashboard = () => {
                 <div className="dashboard-section">
                     <h2>Your Polls</h2>
                     <div className="polls-list">
-                        {votedPolls.map(poll => (
-                            <div key={poll.id} className="poll-card">
-                                <h3>{poll.title}</h3>
-                                <p>Your choice: <span className="user-choice">{poll.userChoice}</span></p>
+                        {loading ? (
+                            <div>Loading your voted polls...</div>
+                        ) : votedPolls.length === 0 ? (
+                            <div className="no-polls-message">
+                                <h3>😃 You haven't voted in any polls yet!</h3>
+                                <p>Explore trending topics and cast your first vote to see your results here.</p>
                             </div>
-                        ))}
+                        ) : (
+                            votedPolls.map(poll => (
+                                <div key={poll.id} className="poll-card">
+                                    <h3>{poll.title}</h3>
+                                    <p>Your choice: <span className="user-choice">{poll.userChoice}</span></p>
+                                </div>
+                            ))
+                        )}
                     </div>
                 </div>
                 <div className="dashboard-section">

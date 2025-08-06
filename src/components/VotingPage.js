@@ -52,8 +52,20 @@ const VotingPage = () => {
             let newVotes = poll.votes ? [...poll.votes] : Array(poll.options.length).fill(0);
             newVotes[optionIndex] = (newVotes[optionIndex] || 0) + 1;
 
+            // Prepare votesByUser update
+            let newVotesByUser = poll.votesByUser ? { ...poll.votesByUser } : {};
+            // Get current user
+            const { getAuth } = await import('firebase/auth');
+            const auth = getAuth();
+            const user = auth.currentUser;
+            if (!user) {
+                alert('You must be logged in to vote.');
+                return;
+            }
+            newVotesByUser[user.uid] = optionIndex;
+
             // Update Firestore
-            await updateDoc(doc(db, 'polls', pollId), { votes: newVotes });
+            await updateDoc(doc(db, 'polls', pollId), { votes: newVotes, votesByUser: newVotesByUser });
 
             setShowNotification(true);
             // After 2 seconds, redirect back to trending topics

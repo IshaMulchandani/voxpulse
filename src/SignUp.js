@@ -1,9 +1,9 @@
-import { signUpUser } from './authFunctions'; // Adjust path as needed
-import { useState } from 'react';
+
+import { signUpUser } from './authFunctions';
+import { useState, useEffect } from 'react';
 import React from "react";
 import './SignUp.css'
 import { Link, useNavigate } from 'react-router-dom'
-
 export default function SignUp(){
     // State for form handling
     const [loading, setLoading] = useState(false);
@@ -18,6 +18,8 @@ export default function SignUp(){
         setSuccess(false);
         setLoading(true);
 
+
+
         // Get form data
         const formData = new FormData(e.target);
         const email = formData.get('email');
@@ -29,21 +31,44 @@ export default function SignUp(){
         const profession = formData.get('profession');
         const annualIncome = formData.get('annualIncome');
 
-        // Basic validation
-        if (password.length < 6) {
-            setError('Password must be at least 6 characters');
+        // Field validation
+        if (!name || name.trim().length < 2) {
+            setError('Please enter your full name (at least 2 characters).');
             setLoading(false);
             return;
         }
-
+        if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+            setError('Please enter a valid email address.');
+            setLoading(false);
+            return;
+        }
+        if (!phoneNo || !/^\d{10}$/.test(phoneNo)) {
+            setError('Please enter a valid 10-digit phone number.');
+            setLoading(false);
+            return;
+        }
+        if (!password || password.length < 6) {
+            setError('Password must be at least 6 characters.');
+            setLoading(false);
+            return;
+        }
         if (!gender) {
-            setError('Please select your gender');
+            setError('Please select your gender.');
             setLoading(false);
             return;
         }
-
+        if (!dob) {
+            setError('Please select your date of birth.');
+            setLoading(false);
+            return;
+        }
+        if (!profession || profession.trim().length < 2) {
+            setError('Please enter your profession (at least 2 characters).');
+            setLoading(false);
+            return;
+        }
         if (!annualIncome) {
-            setError('Please select your annual income range');
+            setError('Please select your annual income range.');
             setLoading(false);
             return;
         }
@@ -71,39 +96,30 @@ export default function SignUp(){
 
         try {
             const result = await signUpUser(email, password, userData);
-            
-            console.log('Signup result:', result); // Debug log
-            
-            // Check if signup was successful - handle both success formats
-            if (result && (result.success === true || result.success !== false)) {
+            if (result && result.success) {
                 setSuccess(true);
-                console.log('Attempting to navigate to /dashboard'); // Debug log
-                // Force immediate redirect without timeout
-                navigate('/dashboard', { replace: true });
+                // Do not redirect; just show success message
+            } else if (result && result.error && result.error.includes('email-already')) {
+                setError('Email already exists. Please log in or use a different email.');
             } else {
                 setError(result ? result.error : 'Signup failed');
             }
         } catch (error) {
-            // If there's an error but user might still be created, try to redirect
-            console.error('Signup error:', error);
-            
-            // Check if error is just a redirect issue, not actual signup failure
-            if (error.message && !error.message.includes('auth/')) {
-                setSuccess(true);
-                console.log('Error occurred but attempting to navigate to /dashboard'); // Debug log
-                navigate('/dashboard');
+            if (error.message && error.message.includes('email-already')) {
+                setError('Email already exists. Please log in or use a different email.');
             } else {
                 setError('An unexpected error occurred');
             }
         }
-        
         setLoading(false);
     };
 
     return(
         <div className="signUpCont">
             <h1>Sign Up</h1>
-            
+
+
+
             {/* Error Message */}
             {error && (
                 <div style={{
@@ -128,11 +144,11 @@ export default function SignUp(){
                     borderRadius: '5px', 
                     marginBottom: '15px'
                 }}>
-                    Account created successfully! Redirecting to dashboard...
+                    Account created successfully! You can now <Link to="/login">log in</Link>.
                 </div>
             )}
 
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} autoComplete="off">
                 <label htmlFor="name">Name</label>
                 <input 
                     type="text" 
@@ -161,6 +177,7 @@ export default function SignUp(){
                     required 
                     placeholder="Enter your phone number..."
                     disabled={loading}
+                    maxLength={10}
                 />
                 
                 <label htmlFor="password">Create Password</label>
@@ -248,7 +265,6 @@ export default function SignUp(){
                         opacity: loading ? 0.6 : 1,
                         cursor: loading ? 'not-allowed' : 'pointer'
                     }}
-                    onSubmit={navigate('/dashboard')}
                 >
                     {loading ? 'Creating Account...' : 'Submit'}
                 </button>

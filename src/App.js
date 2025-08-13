@@ -19,6 +19,7 @@ import CommentsPage from './components/CommentsPage';
 import AdminDashboard from './AdminDashboard';
 import AdminCreatePolls from './components/AdminCreatePolls';
 import CreatePoll from './components/CreatePoll';
+import UserCreatePoll from './components/UserCreatePoll';
 import CreateReport from './components/CreateReport';
 import AdminReportView from './components/AdminReportView';
 import AdminReports from './components/AdminReports';
@@ -29,7 +30,7 @@ import CategoryPage from './components/CategoryPage';
 function AppHeader() {
   const location = useLocation();
   // Show Header2 for all post-login pages
-  if (["/dashboard", "/polls", "/reports", "/trending", "/edit-profile"].includes(location.pathname) || 
+  if (["/dashboard", "/polls", "/reports", "/trending", "/edit-profile", "/create-poll"].includes(location.pathname) || 
       location.pathname.startsWith("/report/") || 
       location.pathname.startsWith("/poll/") ||
       location.pathname.startsWith("/vote/") ||
@@ -55,6 +56,7 @@ function App() {
           <Route path="/polls" element={<PollsForYou />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/trending" element={<TrendingTopics />} />
+          <Route path="/create-poll" element={<UserCreatePoll />} />
           <Route path="/edit-profile" element={<EditProfile />} />
           <Route path="/poll/:pollId" element={<PollPage />} />
           <Route path="/report/:reportType" element={<ReportView />} />

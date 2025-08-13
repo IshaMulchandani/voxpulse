@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getAuth } from 'firebase/auth';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase';
-import { changePassword, requestAdminAccess } from '../authFunctions';
+import { changePassword } from '../authFunctions';
 import Navbar from './Navbar';
 import './EditProfile.css';
 
@@ -30,8 +30,7 @@ const EditProfile = () => {
         avatar: '',
         bio: '',
         location: '',
-        interests: '',
-        adminAccessRequested: false
+        interests: ''
     });
 
     useEffect(() => {
@@ -55,8 +54,7 @@ const EditProfile = () => {
                             avatar: data.avatar || '',
                             bio: data.bio || '',
                             location: data.location || '',
-                            interests: data.interests || '',
-                            adminAccessRequested: data.adminAccessRequested || false
+                            interests: data.interests || ''
                         });
                     }
                 } else {
@@ -185,40 +183,6 @@ const EditProfile = () => {
             setNotification({ 
                 type: 'error', 
                 message: 'Failed to change password' 
-            });
-        }
-    };
-
-    const handleAdminRequest = async () => {
-        try {
-            const auth = getAuth();
-            const user = auth.currentUser;
-            
-            if (user) {
-                const result = await requestAdminAccess(user.uid, formData);
-                
-                if (result.success) {
-                    setNotification({ 
-                        type: 'success', 
-                        message: 'Your admin access request has been sent and is currently being reviewed by our team' 
-                    });
-                    
-                    // Update local state to reflect the request
-                    setFormData(prev => ({
-                        ...prev,
-                        adminAccessRequested: true
-                    }));
-                } else {
-                    setNotification({ 
-                        type: 'error', 
-                        message: result.error || 'Failed to submit admin request' 
-                    });
-                }
-            }
-        } catch (error) {
-            setNotification({ 
-                type: 'error', 
-                message: 'Failed to submit admin request' 
             });
         }
     };
@@ -460,15 +424,6 @@ const EditProfile = () => {
                                 onClick={() => navigate('/dashboard')}
                             >
                                 Cancel
-                            </button>
-                            
-                            <button 
-                                type="button" 
-                                className={`admin-request-btn ${formData.adminAccessRequested ? 'requested' : ''}`}
-                                onClick={handleAdminRequest}
-                                disabled={formData.adminAccessRequested}
-                            >
-                                {formData.adminAccessRequested ? 'Admin Access Requested' : 'Request Admin Access'}
                             </button>
                             
                             <button 

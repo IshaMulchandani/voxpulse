@@ -101,7 +101,15 @@ const TrendingTopics = () => {
     return (
         <div className="section-page">
         <Navbar/><br /><br />
-            <h1 className="section-title">Trending Topics</h1>
+            <div className="page-header">
+                <h1 className="section-title">Trending Topics</h1>
+                <button 
+                    className="create-poll-btn"
+                    onClick={() => navigate('/create-poll')}
+                >
+                    Create a Poll
+                </button>
+            </div>
             <div className="trending-grid">
                 {trendingPolls.map(poll => (
                     <div 

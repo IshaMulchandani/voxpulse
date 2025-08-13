@@ -86,6 +86,7 @@
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
+    color: white;
     width: 100%;
     max-width: 100%;
     min-width: 0;
@@ -114,8 +115,9 @@
         inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
+.category-section .category-title,
 .category-title {
-    color: rgba(255, 255, 255, 0.95);
+    color: #ffffff !important;
     margin-bottom: 1.5rem;
     font-size: 1.6rem;
     font-weight: 700;
@@ -134,7 +136,7 @@
     display: inline-block;
     width: 16px;
     height: 16px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: white;
     border-radius: 50%;
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
 }
@@ -385,4 +387,18 @@
 
 .poll-item {
     animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Force white color for all category titles - Override any inherited styles */
+.polls-page .category-section .category-title,
+.polls-page .category-title,
+.category-section .category-title,
+.category-title,
+h2.category-title {
+    color: #ffffff !important;
+    background: none !important;
+    background-color: transparent !important;
+    -webkit-text-fill-color: #ffffff !important;
+    -webkit-background-clip: unset !important;
+    background-clip: unset !important;
 }

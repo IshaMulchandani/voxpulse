@@ -165,7 +165,7 @@
 }
 
 .user-choice {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    background: white;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -175,6 +175,7 @@
     letter-spacing: 0.5px;
     text-shadow: none;
     position: relative;
+    color: white;
 }
 
 /* Reports styling */

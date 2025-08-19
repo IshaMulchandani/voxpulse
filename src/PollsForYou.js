@@ -4,7 +4,7 @@ import './PollsForYou.css';
 import Navbar from './components/Navbar';
 
 
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, where } from 'firebase/firestore';
 import { db } from './firebase';
 
 const PollsForYou = () => {
@@ -15,7 +15,10 @@ const PollsForYou = () => {
     useEffect(() => {
         const fetchPolls = async () => {
             try {
-                const q = query(collection(db, 'polls'), orderBy('createdAt', 'desc'));
+                const q = query(
+                    collection(db, 'polls'),
+                    orderBy('createdAt', 'desc')
+                );
                 const querySnapshot = await getDocs(q);
                 const pollList = querySnapshot.docs.map(doc => {
                     const data = doc.data();
@@ -23,8 +26,9 @@ const PollsForYou = () => {
                         id: doc.id,
                         title: data.title,
                         category: data.category || 'General',
+                        status: data.status || 'active'
                     };
-                });
+                }).filter(poll => poll.status !== 'closed'); // Only filter out closed polls
                 setPolls(pollList);
             } catch (err) {
                 setPolls([]);

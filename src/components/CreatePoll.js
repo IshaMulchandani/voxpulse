@@ -3,8 +3,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminNavbar from './AdminNavbar';
 import './AdminPages.css';
-import { db } from '../firebase';
+import { db, storage } from '../firebase';
 import { collection, addDoc, Timestamp } from 'firebase/firestore';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 
 const CreatePoll = () => {
     const navigate = useNavigate();
@@ -16,7 +17,10 @@ const CreatePoll = () => {
         imageUrl: '',
         duration: '7'
     });
+    const [selectedImage, setSelectedImage] = useState(null);
     const [notification, setNotification] = useState(null);
+    const [uploading, setUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
 
     const categories = [
         'Technology',
@@ -67,6 +71,48 @@ const CreatePoll = () => {
         }
     };
 
+    const handleImageUpload = (file) => {
+        if (!file) return;
+        setUploading(true);
+        setUploadProgress(0);
+        try {
+            const storageRef = ref(storage, `poll_images/${Date.now()}_${file.name}`);
+            const metadata = { contentType: file.type };
+            const uploadTask = uploadBytesResumable(storageRef, file, metadata);
+
+            uploadTask.on(
+                'state_changed',
+                (snapshot) => {
+                    const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+                    setUploadProgress(progress);
+                },
+                (error) => {
+                    console.error('Error uploading image:', error);
+                    let message = 'Failed to upload image. Please try again.';
+                    if (error?.code === 'storage/unauthorized') {
+                        message = "You don't have permission to upload. Please sign in with appropriate access.";
+                    } else if (error?.code === 'storage/quota-exceeded') {
+                        message = 'Upload quota exceeded. Try again later or reduce file size.';
+                    } else if (error?.code === 'storage/retry-limit-exceeded') {
+                        message = 'Network error during upload. Please check your connection and retry.';
+                    }
+                    setNotification({ type: 'error', message });
+                    setUploading(false);
+                },
+                async () => {
+                    const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+                    setFormData(prev => ({ ...prev, imageUrl: downloadUrl }));
+                    setNotification({ type: 'success', message: 'Image uploaded successfully!' });
+                    setUploading(false);
+                }
+            );
+        } catch (error) {
+            console.error('Unexpected upload error:', error);
+            setNotification({ type: 'error', message: 'Unexpected error during upload. Please try again.' });
+            setUploading(false);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         // Validation
@@ -88,10 +134,8 @@ const CreatePoll = () => {
             return;
         }
 
-        
-
-        // Save poll to Firestore
         try {
+            // Save poll to Firestore
             await addDoc(collection(db, 'polls'), {
                 title: formData.title,
                 description: formData.description,
@@ -191,18 +235,77 @@ const CreatePoll = () => {
                             </div>
 
                             <div className="form-group">
-                                <label htmlFor="imageUrl">Image URL (Optional)</label>
-                                <input
-                                    type="url"
-                                    id="imageUrl"
-                                    name="imageUrl"
-                                    value={formData.imageUrl}
-                                    onChange={handleInputChange}
-                                    placeholder="https://example.com/image.jpg"
-                                />
+                                <label htmlFor="imageUrl">Poll Image</label>
+                                <div className="image-input-container">
+                                    <input
+                                        type="url"
+                                        id="imageUrl"
+                                        name="imageUrl"
+                                        value={formData.imageUrl}
+                                        onChange={(e) => {
+                                            // If user manually sets a URL, clear any previously selected file reference
+                                            if (selectedImage) setSelectedImage(null);
+                                            handleInputChange(e);
+                                        }}
+                                        onBlur={(e) => {
+                                            const raw = (e.target.value || '').trim();
+                                            if (!raw) return;
+                                            const normalized = raw.startsWith('http://') || raw.startsWith('https://')
+                                                ? raw
+                                                : `https://${raw}`;
+                                            if (normalized !== formData.imageUrl) {
+                                                setFormData(prev => ({ ...prev, imageUrl: normalized }));
+                                            }
+                                        }}
+                                        placeholder="https://example.com/image.jpg"
+                                    />
+                                    <div className="image-upload">
+                                        <label htmlFor="imageFile" className="file-upload-label">
+                                            Upload Image
+                                        </label>
+                                        <input
+                                            type="file"
+                                            id="imageFile"
+                                            accept="image/*"
+                                            onChange={(e) => {
+                                                const file = e.target.files[0];
+                                                if (file) {
+                                                    // Basic validation: type and size (<= 5MB)
+                                                    const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+                                                    if (!validTypes.includes(file.type)) {
+                                                        setNotification({ type: 'error', message: 'Please upload a JPEG, PNG, WEBP, or GIF image.' });
+                                                        return;
+                                                    }
+                                                    const maxSize = 5 * 1024 * 1024;
+                                                    if (file.size > maxSize) {
+                                                        setNotification({ type: 'error', message: 'Image is too large. Max size is 5MB.' });
+                                                        return;
+                                                    }
+                                                    setSelectedImage(file);
+                                                    // Do not clear existing URL; upload will overwrite imageUrl on success
+                                                    handleImageUpload(file);
+                                                }
+                                            }}
+                                            style={{ display: 'none' }}
+                                        />
+                                    </div>
+                                </div>
+                                {uploading && (
+                                    <div className="upload-status">
+                                        Uploading image... {uploadProgress}%
+                                    </div>
+                                )}
                                 {formData.imageUrl && (
                                     <div className="image-preview">
-                                        <img src={formData.imageUrl} alt="Poll preview" />
+                                        <img 
+                                            src={formData.imageUrl} 
+                                            alt="Poll preview" 
+                                            style={{ 
+                                                maxWidth: '300px', 
+                                                maxHeight: '200px', 
+                                                objectFit: 'contain' 
+                                            }} 
+                                        />
                                     </div>
                                 )}
                             </div>
@@ -280,6 +383,7 @@ const CreatePoll = () => {
                             <button 
                                 type="submit" 
                                 className="submit-btn"
+                                disabled={uploading}
                             >
                                 Create Poll
                             </button>

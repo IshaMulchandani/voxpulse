@@ -372,7 +372,7 @@ const PollPage = () => {
             <Navbar />
             <div className="poll-page">
                 <div className="poll-banner">
-                    <img src={poll.image} alt={poll.title} className="poll-banner-image" />
+                    <img src={poll.imageUrl || poll.image || 'https://via.placeholder.com/1200x400?text=Poll'} alt={poll.title} className="poll-banner-image" />
                     <div className="poll-banner-overlay">
                         <h1 className="poll-banner-title">{poll.title}</h1>
                     </div>

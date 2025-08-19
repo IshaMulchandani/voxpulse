@@ -61,6 +61,67 @@
     background-clip: text;
 }
 
+.image-input-container {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.image-upload {
+    flex-shrink: 0;
+}
+
+.file-upload-label {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: #4A90E2;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.file-upload-label:hover {
+    background: #357ABD;
+    transform: translateY(-2px);
+}
+
+.upload-status {
+    color: #4A90E2;
+    margin: 0.5rem 0;
+    font-style: italic;
+}
+
+.image-preview {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.image-preview img {
+    max-width: 300px;
+    max-height: 200px;
+    object-fit: contain;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    color: rgba(255, 255, 255, 0.95);
+    margin-bottom: 3rem;
+    text-align: center;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, #fff 0%, #f0f0f0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
 /* Poll Management Styles */
 .polls-list {
     display: flex;
@@ -1526,6 +1587,58 @@
     .admin-toggle-btn,
     .delete-user-btn {
         flex: 1;
+}
+
+/* Image Upload Styles */
+.image-input-container {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.image-upload {
+    flex-shrink: 0;
+}
+
+.file-upload-label {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: #4A90E2;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.file-upload-label:hover {
+    background: #357ABD;
+    transform: translateY(-2px);
+}
+
+.upload-status {
+    color: #4A90E2;
+    margin: 0.5rem 0;
+    font-style: italic;
+}
+
+.image-preview {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.image-preview img {
+    max-width: 300px;
+    max-height: 200px;
+    object-fit: contain;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
         min-width: 0;
         font-size: 0.8rem;
         padding: 0.7rem 1rem;
@@ -1587,4 +1700,3 @@
         gap: 0.5rem;
         flex-wrap: wrap;
     }
-}

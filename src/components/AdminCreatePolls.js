@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import AdminNavbar from './AdminNavbar';
 import './AdminPages.css';
 import { db } from '../firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, query, where } from 'firebase/firestore';
 
 const AdminCreatePolls = () => {
     const navigate = useNavigate();
@@ -25,19 +25,34 @@ const AdminCreatePolls = () => {
             : 'N/A';
     };
 
-    const handleClosePoll = (pollId) => {
-        console.log(`Closing poll with ID: ${pollId}`);
-        // Future: implement poll closing logic
+    const handleClosePoll = async (pollId) => {
+        try {
+            const pollRef = doc(db, 'polls', pollId);
+            await updateDoc(pollRef, {
+                status: 'closed',
+                closedAt: new Date()
+            });
+            // Update local state to remove the closed poll
+            setPolls(polls.filter(poll => poll.id !== pollId));
+        } catch (error) {
+            console.error('Error closing poll:', error);
+            alert('Failed to close poll. Please try again.');
+        }
     };
 
     useEffect(() => {
         const fetchPolls = async () => {
             try {
-                const snapshot = await getDocs(collection(db, 'polls'));
+                // Get all polls from collection
+                const pollsRef = collection(db, 'polls');
+                const snapshot = await getDocs(pollsRef);
                 const pollList = snapshot.docs.map(doc => ({
                     id: doc.id,
-                    ...doc.data()
-                }));
+                    ...doc.data(),
+                    // If status doesn't exist, consider it active
+                    status: doc.data().status || 'active'
+                })).filter(poll => poll.status !== 'closed'); // Filter out only closed polls
+
                 setPolls(pollList);
             } catch (error) {
                 console.error('Error fetching polls:', error);

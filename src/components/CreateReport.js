@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { collection, getDocs, addDoc } from 'firebase/firestore';
+import { db } from '../firebase';
 import AdminNavbar from './AdminNavbar';
 import './AdminPages.css';
 
@@ -12,57 +14,33 @@ const CreateReport = () => {
     const [reportDescription, setReportDescription] = useState('');
     const [notification, setNotification] = useState(null);
 
-    // Dummy data for available polls
-    const availablePolls = [
-        {
-            id: 1,
-            title: "Should AI Development Have Stricter Regulations?",
-            votes: 245,
-            createdOn: "2025-07-01"
-        },
-        {
-            id: 2,
-            title: "Global Climate Action: Individual vs Corporate Responsibility",
-            votes: 189,
-            createdOn: "2025-06-28"
-        },
-        {
-            id: 3,
-            title: "The Future of Remote Work",
-            votes: 156,
-            createdOn: "2025-06-25"
-        },
-        {
-            id: 4,
-            title: "E-Sports in Olympics",
-            votes: 134,
-            createdOn: "2025-06-22"
-        },
-        {
-            id: 5,
-            title: "Social Media Age Restrictions",
-            votes: 198,
-            createdOn: "2025-06-20"
-        },
-        {
-            id: 6,
-            title: "Universal Basic Income Implementation",
-            votes: 276,
-            createdOn: "2025-06-18"
-        },
-        {
-            id: 7,
-            title: "Mental Health Education in Schools",
-            votes: 167,
-            createdOn: "2025-06-15"
-        },
-        {
-            id: 8,
-            title: "Digital Privacy Rights and Data Protection",
-            votes: 213,
-            createdOn: "2025-06-12"
-        }
-    ];
+    // State for available polls
+    const [availablePolls, setAvailablePolls] = useState([]);
+
+    // Fetch actual polls from Firebase
+    useEffect(() => {
+        const fetchPolls = async () => {
+            try {
+                const pollsSnapshot = await getDocs(collection(db, 'polls'));
+                const pollsData = [];
+                pollsSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    const totalVotes = data.votes ? data.votes.reduce((sum, current) => sum + current, 0) : 0;
+                    pollsData.push({
+                        id: doc.id,
+                        title: data.title,
+                        votes: totalVotes,
+                        createdOn: data.createdAt || data.timestamp
+                    });
+                });
+                setAvailablePolls(pollsData);
+            } catch (error) {
+                console.error("Error fetching polls:", error);
+                setNotification({ type: 'error', message: 'Error loading polls' });
+            }
+        };
+        fetchPolls();
+    }, []);
 
     const systemReportTypes = [
         { value: 'user-activity', label: 'User Activity Report' },
@@ -120,7 +98,7 @@ const CreateReport = () => {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         
         if (!reportType) {
@@ -143,22 +121,38 @@ const CreateReport = () => {
             return;
         }
 
-        // Simulate report creation
-        console.log('Creating report:', {
-            type: reportType,
-            pollId: reportType === 'poll' ? selectedPoll : null,
-            systemType: reportType === 'system' ? systemReportType : null,
-            title: reportTitle,
-            description: reportDescription,
-            createdAt: new Date().toISOString()
-        });
+        try {
+            // Create report in Firebase
+            const reportData = {
+                type: reportType,
+                pollId: reportType === 'poll' ? selectedPoll : null,
+                systemType: reportType === 'system' ? systemReportType : null,
+                title: reportTitle,
+                description: reportDescription,
+                createdAt: new Date().toISOString(),
+                views: 0,
+                readBy: [] // Array to store user IDs who have read the report
+            };
 
-        setNotification({ type: 'success', message: 'Report generated successfully!' });
-        
-        // Redirect after 2 seconds
-        setTimeout(() => {
-            navigate('/admin-reports');
-        }, 2000);
+            // Add to admin reports collection
+            const adminReportRef = await addDoc(collection(db, 'reports'), reportData);
+            
+            // Add to public reports collection
+            await addDoc(collection(db, 'publicReports'), {
+                ...reportData,
+                reportId: adminReportRef.id // Reference to admin report
+            });
+            
+            setNotification({ type: 'success', message: 'Report generated successfully!' });
+            
+            // Redirect after 2 seconds
+            setTimeout(() => {
+                navigate('/admin-reports');
+            }, 2000);
+        } catch (error) {
+            console.error("Error creating report:", error);
+            setNotification({ type: 'error', message: 'Failed to create report. Please try again.' });
+        }
     };
 
     const handleCancel = () => {

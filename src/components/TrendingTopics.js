@@ -109,7 +109,7 @@ const TrendingTopics = () => {
                         className="trending-card"
                         onClick={() => handleCardClick(poll.id)}
                     >
-                        <img src={poll.image} alt={poll.title} className="card-image" />
+                        <img src={poll.imageUrl || poll.image} alt={poll.title} className="card-image" />
                         <div className="card-content">
                             <span className={`card-category category-${poll.category}`}>
                                 {poll.category}

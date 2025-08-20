@@ -1,7 +1,9 @@
-import React from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import Navbar from './Navbar';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
+import AdminNavbar from './AdminNavbar';
 import './ReportView.css';
+import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
+import { db } from '../firebase';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -10,16 +12,12 @@ import {
     LineElement,
     BarElement,
     ArcElement,
-    RadialLinearScale,
     Title,
     Tooltip,
-    Legend,
-    BoxPlotController,
-    BoxAndWiskers
+    Legend
 } from 'chart.js';
-import { Line, Bar, Pie, Radar } from 'react-chartjs-2';
+import { Bar, Pie } from 'react-chartjs-2';
 
-// Register ChartJS components
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -27,285 +25,261 @@ ChartJS.register(
     LineElement,
     BarElement,
     ArcElement,
-    RadialLinearScale,
     Title,
     Tooltip,
     Legend
 );
 
 const ReportView = () => {
-    const navigate = useNavigate();
-    const { reportType } = useParams();
+    const { reportId } = useParams();
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [poll, setPoll] = useState(null);
+    const [votesData, setVotesData] = useState([]);
+    const [filters, setFilters] = useState({
+        gender: '',
+        age: '',
+        location: ''
+    });
 
-    // Sample data for different chart types
-    const lineChartData = {
-        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-        datasets: [{
-            label: 'Activity',
-            data: [65, 59, 80, 81, 56, 55],
-            fill: false,
-            borderColor: 'rgb(75, 192, 192)',
-            tension: 0.1
-        }]
-    };
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                setError('');
 
-    const pieChartData = {
-        labels: ['Politics', 'Entertainment', 'Sports', 'Technology', 'Social Issues'],
-        datasets: [{
-            data: [30, 20, 15, 25, 10],
-            backgroundColor: [
-                'rgba(255, 99, 132, 0.8)',
-                'rgba(54, 162, 235, 0.8)',
-                'rgba(255, 206, 86, 0.8)',
-                'rgba(75, 192, 192, 0.8)',
-                'rgba(153, 102, 255, 0.8)'
-            ]
-        }]
-    };
+                // Fetch the poll data
+                const pollSnapshot = await getDoc(doc(db, 'polls', reportId));
+                if (!pollSnapshot.exists()) {
+                    setError('Poll not found');
+                    setLoading(false);
+                    return;
+                }
 
-    const barChartData = {
-        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-        datasets: [{
-            label: 'Responses',
-            data: [12, 19, 3, 5, 2, 3, 9],
-            backgroundColor: 'rgba(54, 162, 235, 0.5)'
-        }]
-    };
+                const pollData = { id: pollSnapshot.id, ...pollSnapshot.data() };
+                setPoll(pollData);
 
-    const radarChartData = {
-        labels: ['Engagement', 'Accuracy', 'Consistency', 'Impact', 'Frequency'],
-        datasets: [{
-            label: 'Your Activity',
-            data: [85, 70, 90, 65, 75],
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            borderColor: 'rgba(75, 192, 192, 1)',
-            pointBackgroundColor: 'rgba(75, 192, 192, 1)'
-        }]
-    };
+                // Fetch votes from votes subcollection
+                const votesCollectionRef = collection(db, 'polls', reportId, 'votes');
+                const votesSnapshot = await getDocs(votesCollectionRef);
+                const votes = votesSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data(),
+                    timestamp: doc.data().timestamp?.toDate() || new Date()
+                }));
+                setVotesData(votes);
+                
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                setError('Failed to load data');
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    const getReportContent = () => {
-        switch(reportType) {
-            case 'vote-analysis':
-                return {
-                    title: 'Vote Analysis Report',
-                    visualizations: [
-                        {
-                            title: 'Monthly Voting Distribution',
-                            description: 'This histogram shows your voting frequency across different times of the day.',
-                            component: <Bar 
-                                data={barChartData}
-                                options={{
-                                    responsive: true,
-                                    plugins: {
-                                        legend: { position: 'top' },
-                                        title: { display: false }
-                                    }
-                                }}
-                            />
-                        },
-                        {
-                            title: 'Category-wise Participation',
-                            description: 'This pie chart breaks down your vote distribution across different poll categories.',
-                            component: <Pie 
-                                data={pieChartData}
-                                options={{
-                                    responsive: true,
-                                    plugins: {
-                                        legend: { position: 'top' },
-                                        title: { display: false }
-                                    }
-                                }}
-                            />
-                        },
-                        {
-                            title: 'Engagement Trends',
-                            description: 'This line graph shows your participation trends over time.',
-                            component: <Line 
-                                data={lineChartData}
-                                options={{
-                                    responsive: true,
-                                    plugins: {
-                                        legend: { position: 'top' },
-                                        title: { display: false }
-                                    }
-                                }}
-                            />
+        fetchData();
+    }, [reportId]);
+
+    const filteredVotes = useMemo(() => {
+        return votesData.filter(vote => {
+            if (filters.gender && vote.gender !== filters.gender) return false;
+            if (filters.age && vote.ageGroup !== filters.age) return false;
+            if (filters.location && vote.location !== filters.location) return false;
+            return true;
+        });
+    }, [votesData, filters]);
+
+    const chartData = useMemo(() => {
+        if (!poll || !filteredVotes.length) return null;
+
+        // Count votes per option
+        const voteCounts = {};
+        poll.options.forEach(option => {
+            voteCounts[option] = 0;
+        });
+
+        filteredVotes.forEach(vote => {
+            if (vote.option && poll.options.includes(vote.option)) {
+                voteCounts[vote.option]++;
+            }
+        });
+
+        // Demographics data
+        const genderData = {};
+        const ageData = {};
+        const locationData = {};
+
+        filteredVotes.forEach(vote => {
+            if (vote.gender) {
+                genderData[vote.gender] = (genderData[vote.gender] || 0) + 1;
+            }
+            if (vote.ageGroup) {
+                ageData[vote.ageGroup] = (ageData[vote.ageGroup] || 0) + 1;
+            }
+            if (vote.location) {
+                locationData[vote.location] = (locationData[vote.location] || 0) + 1;
+            }
+        });
+
+        const chartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 12
                         }
-                    ]
-                };
-            case 'comment-analysis':
-                return {
-                    title: 'Comment Analysis',
-                    visualizations: [
-                        {
-                            title: 'Comment Sentiment Distribution',
-                            description: 'This bar chart shows the distribution of sentiment in your comments.',
-                            component: <Bar 
-                                data={{
-                                    labels: ['Very Negative', 'Negative', 'Neutral', 'Positive', 'Very Positive'],
-                                    datasets: [{
-                                        label: 'Comment Sentiment',
-                                        data: [5, 15, 40, 30, 10],
-                                        backgroundColor: 'rgba(153, 102, 255, 0.5)'
-                                    }]
-                                }}
-                                options={{
-                                    responsive: true,
-                                    plugins: {
-                                        legend: { position: 'top' },
-                                        title: { display: false }
-                                    }
-                                }}
-                            />
-                        },
-                        {
-                            title: 'Top Discussion Topics',
-                            description: 'This pie chart shows the distribution of topics in your comments.',
-                            component: <Pie 
-                                data={{
-                                    labels: ['Policy', 'Culture', 'Technology', 'Sports', 'Environment'],
-                                    datasets: [{
-                                        data: [25, 20, 20, 15, 20],
-                                        backgroundColor: [
-                                            'rgba(255, 99, 132, 0.8)',
-                                            'rgba(54, 162, 235, 0.8)',
-                                            'rgba(255, 206, 86, 0.8)',
-                                            'rgba(75, 192, 192, 0.8)',
-                                            'rgba(153, 102, 255, 0.8)'
-                                        ]
-                                    }]
-                                }}
-                                options={{
-                                    responsive: true,
-                                    plugins: {
-                                        legend: { position: 'top' },
-                                        title: { display: false }
-                                    }
-                                }}
-                            />
-                        },
-                        {
-                            title: 'Response Rate Analysis',
-                            description: 'This line graph shows how often your comments receive responses.',
-                            component: <Line 
-                                data={{
-                                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-                                    datasets: [{
-                                        label: 'Response Rate',
-                                        data: [75, 82, 68, 90],
-                                        fill: false,
-                                        borderColor: 'rgb(75, 192, 192)',
-                                        tension: 0.1
-                                    }]
-                                }}
-                                options={{
-                                    responsive: true,
-                                    plugins: {
-                                        legend: { position: 'top' },
-                                        title: { display: false }
-                                    }
-                                }}
-                            />
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 12
                         }
-                    ]
-                };
-            case 'activity-report':
-                return {
-                    title: 'Activity Report',
-                    visualizations: [
-                        {
-                            title: 'Impact Score Trend',
-                            description: 'This line graph shows how your contributions have influenced poll outcomes.',
-                            component: <Line 
-                                data={{
-                                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                                    datasets: [{
-                                        label: 'Impact Score',
-                                        data: [65, 75, 70, 85, 80, 90],
-                                        fill: false,
-                                        borderColor: 'rgb(75, 192, 192)',
-                                        tension: 0.1
-                                    }]
-                                }}
-                                options={{
-                                    responsive: true,
-                                    plugins: {
-                                        legend: { position: 'top' },
-                                        title: { display: false }
-                                    }
-                                }}
-                            />
-                        },
-                        {
-                            title: 'Contribution Distribution',
-                            description: 'This bar chart shows the breakdown of your different types of contributions.',
-                            component: <Bar 
-                                data={{
-                                    labels: ['Votes', 'Comments', 'Shares', 'Reports', 'Awards'],
-                                    datasets: [{
-                                        label: 'Contributions',
-                                        data: [300, 150, 100, 50, 75],
-                                        backgroundColor: 'rgba(54, 162, 235, 0.5)'
-                                    }]
-                                }}
-                                options={{
-                                    responsive: true,
-                                    plugins: {
-                                        legend: { position: 'top' },
-                                        title: { display: false }
-                                    }
-                                }}
-                            />
-                        },
-                        {
-                            title: 'Community Alignment',
-                            description: 'This radar chart shows how your voting patterns align with the community.',
-                            component: <Radar 
-                                data={radarChartData}
-                                options={{
-                                    responsive: true,
-                                    plugins: {
-                                        legend: { position: 'top' },
-                                        title: { display: false }
-                                    }
-                                }}
-                            />
-                        }
-                    ]
-                };
-            default:
-                return {
-                    title: 'Report Not Found',
-                    visualizations: []
-                };
-        }
-    };
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        };
 
-    const report = getReportContent();
+        return {
+            options: {
+                labels: Object.keys(voteCounts),
+                datasets: [{
+                    data: Object.values(voteCounts),
+                    backgroundColor: ['#4BC0C0', '#36A2EB', '#FFCE56', '#FF6384', '#9966FF'],
+                    barThickness: 40,
+                    borderRadius: 4
+                }],
+                options: chartOptions
+            },
+            demographics: {
+                gender: {
+                    labels: Object.keys(genderData),
+                    datasets: [{
+                        data: Object.values(genderData),
+                        backgroundColor: ['#4BC0C0', '#36A2EB', '#FF6384'],
+                        barThickness: 40,
+                        borderRadius: 4
+                    }],
+                    options: chartOptions
+                },
+                age: {
+                    labels: Object.keys(ageData),
+                    datasets: [{
+                        data: Object.values(ageData),
+                        backgroundColor: '#4BC0C0',
+                        barThickness: 40,
+                        borderRadius: 4
+                    }],
+                    options: chartOptions
+                },
+                location: {
+                    labels: Object.keys(locationData),
+                    datasets: [{
+                        data: Object.values(locationData),
+                        backgroundColor: ['#4BC0C0', '#36A2EB', '#FF6384'],
+                        barThickness: 40,
+                        borderRadius: 4
+                    }],
+                    options: chartOptions
+                }
+            }
+        };
+    }, [poll, filteredVotes]);
+
+    if (loading) return <div className="loading">Loading...</div>;
+    if (error) return <div className="error">{error}</div>;
+    if (!poll) return <div className="error">No poll data found</div>;
 
     return (
-        <div>
-            <Navbar />
-            <div className="report-view-container">
-                <div className="report-header">
-                    <div className="back-arrow" onClick={() => navigate('/reports')}>
-                        ←
+        <div className="report-view-container">
+            <AdminNavbar />
+            <div className="report-content">
+                <h1>{poll.title}</h1>
+                <p>{poll.description}</p>
+
+                <div className="filters-section">
+                    <h3>Filters</h3>
+                    <div className="filters-grid">
+                        <select
+                            value={filters.gender}
+                            onChange={(e) => setFilters(prev => ({ ...prev, gender: e.target.value }))}
+                        >
+                            <option value="">All Genders</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+
+                        <select
+                            value={filters.age}
+                            onChange={(e) => setFilters(prev => ({ ...prev, age: e.target.value }))}
+                        >
+                            <option value="">All Ages</option>
+                            <option value="18-24">18-24</option>
+                            <option value="25-34">25-34</option>
+                            <option value="35-44">35-44</option>
+                            <option value="45-54">45-54</option>
+                            <option value="55+">55+</option>
+                        </select>
+
+                        <select
+                            value={filters.location}
+                            onChange={(e) => setFilters(prev => ({ ...prev, location: e.target.value }))}
+                        >
+                            <option value="">All Locations</option>
+                            <option value="Urban">Urban</option>
+                            <option value="Suburban">Suburban</option>
+                            <option value="Rural">Rural</option>
+                        </select>
                     </div>
-                    <h1 className="report-title">{report.title}</h1>
                 </div>
-                <div className="visualization-grid">
-                    {report.visualizations.map((viz, index) => (
-                        <div key={index} className="visualization-card">
-                            <div className="visualization-header">
-                                <h2 className="visualization-title">{viz.title}</h2>
-                                <p className="visualization-description">{viz.description}</p>
-                            </div>
-                            <div className="chart-container">
-                                {viz.component}
+
+                {chartData && (
+                    <div className="charts-grid">
+                        <div className="chart-card">
+                            <h3>Vote Distribution</h3>
+                            <div className="chart-wrapper">
+                                <Bar data={chartData.options} options={chartData.options.options} />
                             </div>
                         </div>
-                    ))}
-                </div>
+
+                        <div className="chart-card">
+                            <h3>Gender Distribution</h3>
+                            <div className="chart-wrapper">
+                                <Bar data={chartData.demographics.gender} options={chartData.demographics.gender.options} />
+                            </div>
+                        </div>
+
+                        <div className="chart-card">
+                            <h3>Age Distribution</h3>
+                            <div className="chart-wrapper">
+                                <Bar data={chartData.demographics.age} options={chartData.demographics.age.options} />
+                            </div>
+                        </div>
+
+                        <div className="chart-card">
+                            <h3>Location Distribution</h3>
+                            <div className="chart-wrapper">
+                                <Bar data={chartData.demographics.location} options={chartData.demographics.location.options} />
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

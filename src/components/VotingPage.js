@@ -48,12 +48,6 @@ const VotingPage = () => {
             const optionIndex = poll.options.findIndex(opt => opt === selectedOption);
             if (optionIndex === -1) return;
 
-            // Prepare new votes array
-            let newVotes = poll.votes ? [...poll.votes] : Array(poll.options.length).fill(0);
-            newVotes[optionIndex] = (newVotes[optionIndex] || 0) + 1;
-
-            // Prepare votesByUser update
-            let newVotesByUser = poll.votesByUser ? { ...poll.votesByUser } : {};
             // Get current user
             const { getAuth } = await import('firebase/auth');
             const auth = getAuth();
@@ -62,10 +56,57 @@ const VotingPage = () => {
                 alert('You must be logged in to vote.');
                 return;
             }
-            newVotesByUser[user.uid] = optionIndex;
 
-            // Update Firestore
-            await updateDoc(doc(db, 'polls', pollId), { votes: newVotes, votesByUser: newVotesByUser });
+            // Fetch user profile for detailed tracking
+            const userProfileSnap = await getDoc(doc(db, 'users', user.uid));
+            const profile = userProfileSnap.exists() ? userProfileSnap.data() : {};
+
+            // Prepare user vote data with demographics
+            const userVoteData = {
+                userId: user.uid,
+                optionIndex: optionIndex,
+                option: selectedOption,
+                timestamp: new Date(),
+                userDetails: {
+                    gender: profile.gender || 'Not Specified',
+                    age: profile.age || 'Not Specified',
+                    location: profile.location || 'Not Specified',
+                    profession: profile.profession || 'Not Specified',
+                    annualIncome: profile.annualIncome || 'Not Specified'
+                }
+            };
+
+            // Get current poll data
+            const pollRef = doc(db, 'polls', pollId);
+            const currentPollSnap = await getDoc(pollRef);
+            const currentPoll = currentPollSnap.data();
+
+            // Initialize or get existing votesWithDetails array
+            let votesWithDetails = currentPoll.votesWithDetails || [];
+            
+            // Check if user has already voted
+            const existingVoteIndex = votesWithDetails.findIndex(vote => vote.userId === user.uid);
+            if (existingVoteIndex !== -1) {
+                // Update existing vote
+                votesWithDetails[existingVoteIndex] = userVoteData;
+            } else {
+                // Add new vote
+                votesWithDetails.push(userVoteData);
+            }
+
+            // Calculate total votes for each option
+            const newVotes = Array(poll.options.length).fill(0);
+            votesWithDetails.forEach(vote => {
+                if (vote.optionIndex >= 0 && vote.optionIndex < newVotes.length) {
+                    newVotes[vote.optionIndex]++;
+                }
+            });
+
+            // Update the poll document with both votes array and detailed votes
+            await updateDoc(pollRef, { 
+                votes: newVotes,
+                votesWithDetails: votesWithDetails
+            });
 
             setShowNotification(true);
             // After 2 seconds, redirect back to trending topics
@@ -73,6 +114,7 @@ const VotingPage = () => {
                 navigate('/trending');
             }, 2000);
         } catch (e) {
+            console.error('Error submitting vote:', e);
             alert('Failed to submit vote. Please try again.');
         }
     };

@@ -1,0 +1,400 @@
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
+import { db } from '../firebase';
+import Navbar from './Navbar';
+import './ReportView.css';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
+import { Bar, Pie } from 'react-chartjs-2';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
+
+// Common chart options
+const commonChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        legend: {
+            position: 'bottom',
+            labels: {
+                boxWidth: 12,
+                padding: 8,
+                font: {
+                    size: 11
+                }
+            }
+        }
+    }
+};
+
+const barChartOptions = {
+    ...commonChartOptions,
+    scales: {
+        y: {
+            beginAtZero: true,
+            ticks: {
+                font: {
+                    size: 11
+                }
+            }
+        },
+        x: {
+            ticks: {
+                font: {
+                    size: 11
+                }
+            }
+        }
+    }
+};
+
+const pieChartOptions = {
+    ...commonChartOptions,
+    layout: {
+        padding: {
+            top: 5,
+            bottom: 5
+        }
+    }
+};
+
+const ReportView = () => {
+    const { id } = useParams();
+    const [poll, setPoll] = useState(null);
+    const [votes, setVotes] = useState([]);
+    const [chartData, setChartData] = useState(null);
+    const [stats, setStats] = useState(null);
+
+    useEffect(() => {
+        const fetchPollAndVotes = async () => {
+            try {
+                const pollDoc = await getDoc(doc(db, 'polls', id));
+                if (!pollDoc.exists()) {
+                    console.error('Poll not found');
+                    return;
+                }
+                setPoll(pollDoc.data());
+
+                const votesCollection = await getDocs(collection(db, 'polls', id, 'votes'));
+                const votesData = votesCollection.docs.map(doc => doc.data());
+                setVotes(votesData);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+
+        fetchPollAndVotes();
+    }, [id]);
+
+    useEffect(() => {
+        if (!poll || !votes.length) return;
+
+        const processData = () => {
+            const optionsData = {
+                labels: [],
+                values: []
+            };
+
+            const genderData = {
+                labels: ['Male', 'Female', 'Other'],
+                values: [0, 0, 0]
+            };
+
+            const ageData = {
+                labels: ['18-24', '25-34', '35-44', '45-54', '55+'],
+                values: [0, 0, 0, 0, 0]
+            };
+
+            const professionData = {
+                labels: [],
+                values: []
+            };
+
+            const incomeData = {
+                labels: ['< $30k', '$30k-$60k', '$60k-$90k', '$90k-$120k', '> $120k'],
+                values: [0, 0, 0, 0, 0]
+            };
+
+            const locationData = {
+                labels: [],
+                values: []
+            };
+
+            // Process options data
+            const optionCounts = {};
+            votes.forEach(vote => {
+                if (vote.option) {
+                    optionCounts[vote.option] = (optionCounts[vote.option] || 0) + 1;
+                }
+            });
+
+            Object.entries(optionCounts).forEach(([option, count]) => {
+                optionsData.labels.push(option);
+                optionsData.values.push(count);
+            });
+
+            // Process demographic data and collect statistics
+            const statistics = {
+                totalVotes: votes.length,
+                genderStats: { Male: 0, Female: 0, Other: 0 },
+                ageStats: { '18-24': 0, '25-34': 0, '35-44': 0, '45-54': 0, '55+': 0 },
+                professionStats: {},
+                incomeStats: { '< $30k': 0, '$30k-$60k': 0, '$60k-$90k': 0, '$90k-$120k': 0, '> $120k': 0 }
+            };
+
+            votes.forEach(vote => {
+                // Gender processing
+                if (vote.gender) {
+                    const index = genderData.labels.indexOf(vote.gender);
+                    if (index !== -1) {
+                        genderData.values[index]++;
+                        statistics.genderStats[vote.gender]++;
+                    }
+                }
+
+                // Age processing
+                if (vote.age) {
+                    const ageRange = vote.age;
+                    const index = ageData.labels.indexOf(ageRange);
+                    if (index !== -1) {
+                        ageData.values[index]++;
+                        statistics.ageStats[ageRange]++;
+                    }
+                }
+
+                // Profession processing
+                if (vote.profession) {
+                    if (!professionData.labels.includes(vote.profession)) {
+                        professionData.labels.push(vote.profession);
+                        professionData.values.push(1);
+                        statistics.professionStats[vote.profession] = 1;
+                    } else {
+                        const index = professionData.labels.indexOf(vote.profession);
+                        professionData.values[index]++;
+                        statistics.professionStats[vote.profession]++;
+                    }
+                }
+
+                // Income processing
+                if (vote.income) {
+                    const index = incomeData.labels.indexOf(vote.income);
+                    if (index !== -1) {
+                        incomeData.values[index]++;
+                        statistics.incomeStats[vote.income]++;
+                    }
+                }
+
+                // Location processing
+                if (vote.location) {
+                    if (!locationData.labels.includes(vote.location)) {
+                        locationData.labels.push(vote.location);
+                        locationData.values.push(1);
+                    } else {
+                        const index = locationData.labels.indexOf(vote.location);
+                        locationData.values[index]++;
+                    }
+                }
+            });
+
+            setStats(statistics);
+            setChartData({
+                options: optionsData,
+                demographics: {
+                    gender: genderData,
+                    age: ageData,
+                    profession: professionData,
+                    income: incomeData,
+                    location: locationData
+                }
+            });
+        };
+
+        processData();
+    }, [poll, votes]);
+
+    return (
+        <div className="report-view-container">
+            <Navbar />
+            <div className="report-content">
+                <h1>{poll?.title}</h1>
+                {chartData && (
+                    <>
+                        <div className="charts-grid">
+                            <div className="chart-card">
+                                <h3>Vote Distribution</h3>
+                                <div className="chart-wrapper">
+                                    <Pie 
+                                        data={{
+                                            labels: chartData.options.labels,
+                                            datasets: [{
+                                                data: chartData.options.values,
+                                                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
+                                            }]
+                                        }}
+                                        options={pieChartOptions}
+                                    />
+                                </div>
+                            </div>
+                            
+                            <div className="chart-card">
+                                <h3>Gender Distribution</h3>
+                                <div className="chart-wrapper">
+                                    <Pie 
+                                        data={{
+                                            labels: chartData.demographics.gender.labels,
+                                            datasets: [{
+                                                data: chartData.demographics.gender.values,
+                                                backgroundColor: ['#FF6384', '#36A2EB', '#4BC0C0']
+                                            }]
+                                        }}
+                                        options={pieChartOptions}
+                                    />
+                                </div>
+                            </div>
+                            
+                            <div className="chart-card">
+                                <h3>Age Distribution</h3>
+                                <div className="chart-wrapper">
+                                    <Bar 
+                                        data={{
+                                            labels: chartData.demographics.age.labels,
+                                            datasets: [{
+                                                data: chartData.demographics.age.values,
+                                                backgroundColor: '#36A2EB'
+                                            }]
+                                        }}
+                                        options={barChartOptions}
+                                    />
+                                </div>
+                            </div>
+                            
+                            <div className="chart-card">
+                                <h3>Location Distribution</h3>
+                                <div className="chart-wrapper">
+                                    <Pie 
+                                        data={{
+                                            labels: chartData.demographics.location.labels,
+                                            datasets: [{
+                                                data: chartData.demographics.location.values,
+                                                backgroundColor: ['#FFCE56', '#4BC0C0', '#9966FF']
+                                            }]
+                                        }}
+                                        options={pieChartOptions}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {stats && (
+                            <div className="poll-statistics">
+                                <h2>Poll Statistics Overview</h2>
+                                
+                                <div className="stats-overview">
+                                    <div className="stats-block">
+                                        <h3>📊 Total Responses: {stats.totalVotes}</h3>
+                                        
+                                        <div className="demographic-section">
+                                            <h4>👥 Gender Distribution:</h4>
+                                            {Object.entries(stats.genderStats).map(([gender, count]) => (
+                                                <p key={gender}>
+                                                    • {gender}: {count} responses ({((count / stats.totalVotes) * 100).toFixed(1)}%)
+                                                </p>
+                                            ))}
+                                        </div>
+
+                                        <div className="demographic-section">
+                                            <h4>📅 Age Distribution:</h4>
+                                            {Object.entries(stats.ageStats).map(([age, count]) => (
+                                                <p key={age}>
+                                                    • {age}: {count} responses ({((count / stats.totalVotes) * 100).toFixed(1)}%)
+                                                </p>
+                                            ))}
+                                        </div>
+
+                                        <div className="demographic-section">
+                                            <h4>💼 Professional Background:</h4>
+                                            {Object.entries(stats.professionStats).map(([profession, count]) => (
+                                                <p key={profession}>
+                                                    • {profession}: {count} responses ({((count / stats.totalVotes) * 100).toFixed(1)}%)
+                                                </p>
+                                            ))}
+                                        </div>
+
+                                        <div className="demographic-section">
+                                            <h4>💰 Income Distribution:</h4>
+                                            {Object.entries(stats.incomeStats).map(([income, count]) => (
+                                                <p key={income}>
+                                                    • {income}: {count} responses ({((count / stats.totalVotes) * 100).toFixed(1)}%)
+                                                </p>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                                            {Object.entries(stats.genderStats).map(([gender, count]) => (
+                                                <div key={gender} className="stat-item">
+                                                    <span className="stat-label">{gender}</span>
+                                                    <span className="stat-value">{count}</span>
+                                                    <span className="stat-percentage">
+                                                        ({((count / stats.totalVotes) * 100).toFixed(1)}%)
+                                                    </span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="stats-card">
+                                        <h3>Age Groups</h3>
+                                        <div className="stat-list">
+                                            {Object.entries(stats.ageStats).map(([age, count]) => (
+                                                <div key={age} className="stat-item">
+                                                    <span className="stat-label">{age}</span>
+                                                    <span className="stat-value">{count}</span>
+                                                    <span className="stat-percentage">
+                                                        ({((count / stats.totalVotes) * 100).toFixed(1)}%)
+                                                    </span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="stats-card">
+                                        <h3>Professional Background</h3>
+                                        <div className="stat-list">
+                                            {Object.entries(stats.professionStats).map(([profession, count]) => (
+                                                <div key={profession} className="stat-item">
+                                                    <span className="stat-label">{profession}</span>
+                                                    <span className="stat-value">{count}</span>
+                                                    <span className="stat-percentage">
+                                                        ({((count / stats.totalVotes) * 100).toFixed(1)}%)
+                                                    </span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="stats-card">
+                                        <h3>Income Distribution</h3>
+                                        <div className="stat-list">
+                                            {Object.entries(stats.incomeStats).map(([income, count]) => (
+                                                <div key={income} className="stat-item">
+                                                    <span className="stat-label">{income}</span>
+                                                    <span className="stat-value">{count}</span>
+                                                    <span className="stat-percentage">
+                                                        ({((count / stats.totalVotes) * 100).toFixed(1)}%)
+                                                    </span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </>
+                )}
+            </div>
+        </div>
+    );
+};
+
+export default ReportView;

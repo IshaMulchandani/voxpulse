@@ -1,0 +1,447 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
+import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
+import { db } from '../firebase';
+import Navbar from './Navbar';
+import './ReportView.css';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
+import { Bar, Pie } from 'react-chartjs-2';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
+
+// Common chart options
+const commonChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        legend: {
+            position: 'bottom',
+            labels: {
+                boxWidth: 12,
+                padding: 8,
+                font: {
+                    size: 11
+                }
+            }
+        }
+    }
+};
+
+const barChartOptions = {
+    ...commonChartOptions,
+    scales: {
+        y: {
+            beginAtZero: true,
+            ticks: {
+                font: {
+                    size: 11
+                }
+            }
+        },
+        x: {
+            ticks: {
+                font: {
+                    size: 11
+                }
+            }
+        }
+    }
+};
+
+const pieChartOptions = {
+    ...commonChartOptions,
+    layout: {
+        padding: {
+            top: 5,
+            bottom: 5
+        }
+    }
+};eact, { useState, useEffect, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
+import { doc, getDoc, collection, getDocs } from 'firebase/firestore';
+import { db } from '../firebase';
+import Navbar from './Navbar';
+import './ReportView.css';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, RadialLinearScale } from 'chart.js';
+import { Bar, Pie } from 'react-chartjs-2';
+
+// Register Chart.js components
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, RadialLinearScale);
+
+const ReportView = () => {
+    const { reportId } = useParams();
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [poll, setPoll] = useState(null);
+    const [votesData, setVotesData] = useState([]);
+    const [filters, setFilters] = useState({
+        gender: '',
+        age: '',
+        location: ''
+    });
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                setError('');
+
+                // Fetch the poll data
+                const pollSnapshot = await getDoc(doc(db, 'polls', reportId));
+                if (!pollSnapshot.exists()) {
+                    setError('Poll not found');
+                    setLoading(false);
+                    return;
+                }
+
+                const pollData = { id: pollSnapshot.id, ...pollSnapshot.data() };
+                setPoll(pollData);
+
+                // Fetch votes from the votes subcollection in the poll document
+                const votesRef = collection(db, 'polls', pollData.id, 'votes');
+                const votesSnapshot = await getDocs(votesRef);
+                
+                // Also fetch user profiles to get demographic data
+                const userProfiles = new Map();
+                const uniqueUserIds = new Set();
+                
+                votesSnapshot.docs.forEach(doc => {
+                    const data = doc.data();
+                    if (data.userId) uniqueUserIds.add(data.userId);
+                });
+                
+                // Fetch all unique user profiles
+                await Promise.all(Array.from(uniqueUserIds).map(async (userId) => {
+                    const userDoc = await getDoc(doc(db, 'users', userId));
+                    if (userDoc.exists()) {
+                        userProfiles.set(userId, userDoc.data());
+                    }
+                }));
+                
+                // Process votes with user demographic data
+                const votes = votesSnapshot.docs.map(d => {
+                    const data = d.data();
+                    const userProfile = userProfiles.get(data.userId) || {};
+                    
+                    // Get age group
+                    const rawAge = userProfile.age;
+                    let ageGroup = 'Not Specified';
+                    const n = Number(rawAge);
+                    if (!isNaN(n)) {
+                        if (n >= 18 && n <= 24) ageGroup = '18-24';
+                        else if (n <= 34) ageGroup = '25-34';
+                        else if (n <= 44) ageGroup = '35-44';
+                        else if (n <= 54) ageGroup = '45-54';
+                        else ageGroup = '55+';
+                    }
+                    
+                    const gender = (userProfile.gender || 'Not Specified').trim();
+                    const location = (userProfile.location || 'Not Specified').trim();
+                    
+                    return {
+                        id: d.id,
+                        userId: data.userId,
+                        option: pollData.options[data.optionIndex] || 'Unknown',
+                        gender,
+                        ageGroup,
+                        location,
+                        timestamp: data.timestamp?.toDate ? data.timestamp.toDate() : new Date()
+                    };
+                });
+                setVotesData(votes);
+                
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                setError('Failed to load data');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [reportId]);
+
+    const filteredVotes = useMemo(() => {
+        return votesData.filter(vote => {
+            if (filters.gender && vote.gender !== filters.gender) return false;
+            if (filters.age && vote.ageGroup !== filters.age) return false;
+            if (filters.location && vote.location !== filters.location) return false;
+            return true;
+        });
+    }, [votesData, filters]);
+
+    const chartData = useMemo(() => {
+        if (!poll || !filteredVotes.length) return null;
+
+        // Initialize counters for each option
+        const voteCounts = {};
+        const optionVoters = {}; // To track who voted for what
+        poll.options.forEach(option => {
+            voteCounts[option] = 0;
+            optionVoters[option] = new Set();
+        });
+
+        // Demographics data
+        const genderData = {
+            'Male': 0,
+            'Female': 0,
+            'Other': 0,
+            'Not Specified': 0
+        };
+        const ageData = {
+            '18-24': 0,
+            '25-34': 0,
+            '35-44': 0,
+            '45-54': 0,
+            '55+': 0,
+            'Not Specified': 0
+        };
+        const locationData = {
+            'Urban': 0,
+            'Suburban': 0,
+            'Rural': 0,
+            'Not Specified': 0
+        };
+
+        // Count unique votes and demographics
+        filteredVotes.forEach(vote => {
+            if (vote.option && poll.options.includes(vote.option)) {
+                if (!optionVoters[vote.option].has(vote.userId)) {
+                    voteCounts[vote.option]++;
+                    optionVoters[vote.option].add(vote.userId);
+                }
+            }
+
+            // Count demographics only once per user
+            if (vote.gender) {
+                genderData[vote.gender] = (genderData[vote.gender] || 0) + 1;
+            } else {
+                genderData['Not Specified']++;
+            }
+
+            if (vote.ageGroup) {
+                ageData[vote.ageGroup] = (ageData[vote.ageGroup] || 0) + 1;
+            } else {
+                ageData['Not Specified']++;
+            }
+
+            if (vote.location) {
+                locationData[vote.location] = (locationData[vote.location] || 0) + 1;
+            } else {
+                locationData['Not Specified']++;
+            }
+        });
+
+        // Remove empty categories
+        const cleanData = (data) => {
+            const cleaned = {};
+            Object.entries(data).forEach(([key, value]) => {
+                if (value > 0) cleaned[key] = value;
+            });
+            return cleaned;
+        };
+
+        return {
+            options: {
+                labels: Object.keys(voteCounts),
+                values: Object.values(voteCounts),
+                type: 'pie',
+                title: 'Vote Distribution by Option'
+            },
+            demographics: {
+                gender: {
+                    labels: Object.keys(cleanData(genderData)),
+                    values: Object.values(cleanData(genderData)),
+                    type: 'pie',
+                    title: 'Voter Gender Distribution'
+                },
+                age: {
+                    labels: Object.keys(cleanData(ageData)),
+                    values: Object.values(cleanData(ageData)),
+                    type: 'bar',
+                    title: 'Voter Age Distribution'
+                },
+                location: {
+                    labels: Object.keys(cleanData(locationData)),
+                    values: Object.values(cleanData(locationData)),
+                    type: 'pie',
+                    title: 'Voter Location Distribution'
+                }
+            }
+        };
+    }, [poll, filteredVotes]);
+
+    if (loading) return <div className="loading">Loading...</div>;
+    if (error) return <div className="error">{error}</div>;
+    if (!poll) return <div className="error">No poll data found</div>;
+
+    return (
+        <div className="report-view-container">
+            <Navbar />
+            <div className="report-content">
+                <h1>{poll.title}</h1>
+                <p>{poll.description}</p>
+                <div className="total-votes">
+                    <h3>Total Unique Voters: {new Set(filteredVotes.map(v => v.userId)).size}</h3>
+                </div>
+
+                <div className="filters-section">
+                    <h3>Filters</h3>
+                    <div className="filters-grid">
+                        <select
+                            value={filters.gender}
+                            onChange={(e) => setFilters(prev => ({ ...prev, gender: e.target.value }))}
+                        >
+                            <option value="">All Genders</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+
+                        <select
+                            value={filters.age}
+                            onChange={(e) => setFilters(prev => ({ ...prev, age: e.target.value }))}
+                        >
+                            <option value="">All Ages</option>
+                            <option value="18-24">18-24</option>
+                            <option value="25-34">25-34</option>
+                            <option value="35-44">35-44</option>
+                            <option value="45-54">45-54</option>
+                            <option value="55+">55+</option>
+                        </select>
+
+                        <select
+                            value={filters.location}
+                            onChange={(e) => setFilters(prev => ({ ...prev, location: e.target.value }))}
+                        >
+                            <option value="">All Locations</option>
+                            <option value="Urban">Urban</option>
+                            <option value="Suburban">Suburban</option>
+                            <option value="Rural">Rural</option>
+                        </select>
+                    </div>
+                </div>
+
+                {chartData && (
+                    <div className="charts-grid">
+                        <div className="chart-card">
+                            <h3>Vote Distribution by Option</h3>
+                            <div className="chart-wrapper">
+                                {chartData && chartData.options ? (
+                                    <Pie 
+                                        data={{
+                                            labels: chartData.options.labels,
+                                            datasets: [{
+                                                data: chartData.options.values,
+                                                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'],
+                                                borderWidth: 1
+                                            }]
+                                        }}
+                                        options={{
+                                            responsive: true,
+                                            maintainAspectRatio: false,
+                                            plugins: {
+                                                legend: { 
+                                                    position: 'bottom',
+                                                    labels: { boxWidth: 12, padding: 8 }
+                                                }
+                                            }
+                                        }}
+                                    />
+                                ) : (
+                                    <div className="no-data">No data available</div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="chart-card">
+                            <h3>Voter Gender Distribution</h3>
+                            <div className="chart-wrapper">
+                                {chartData && chartData.demographics.gender ? (
+                                    <Pie 
+                                        data={{
+                                            labels: chartData.demographics.gender.labels,
+                                            datasets: [{
+                                            data: chartData.demographics.gender.values,
+                                            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
+                                            borderWidth: 2
+                                        }]
+                                    }}
+                                    options={{
+                                        responsive: true,
+                                        plugins: {
+                                            legend: { position: 'top' },
+                                            title: { display: true, text: 'Voter Gender Distribution' }
+                                        }
+                                    }}
+                                />
+                            ) : (
+                                <div className="no-data">No data available</div>
+                            )}
+                        </div>
+
+                        <div className="chart-container">
+                            <h3>Voter Age Distribution</h3>
+                            {chartData && chartData.demographics.age ? (
+                                <Bar 
+                                    data={{
+                                        labels: chartData.demographics.age.labels,
+                                        datasets: [{
+                                            label: 'Voters',
+                                            data: chartData.demographics.age.values,
+                                            backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                                            borderColor: 'rgba(54, 162, 235, 1)',
+                                            borderWidth: 1
+                                        }]
+                                    }}
+                                    options={{
+                                        responsive: true,
+                                        plugins: {
+                                            legend: { position: 'top' },
+                                            title: { display: true, text: 'Voter Age Distribution' }
+                                        },
+                                        scales: {
+                                            y: {
+                                                beginAtZero: true,
+                                                ticks: { stepSize: 1 }
+                                            }
+                                        }
+                                    }}
+                                />
+                            ) : (
+                                <div className="no-data">No data available</div>
+                            )}
+                        </div>
+
+                        <div className="chart-container">
+                            <h3>Voter Location Distribution</h3>
+                            {chartData && chartData.demographics.location ? (
+                                <Pie 
+                                    data={{
+                                        labels: chartData.demographics.location.labels,
+                                        datasets: [{
+                                            data: chartData.demographics.location.values,
+                                            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
+                                            borderWidth: 2
+                                        }]
+                                    }}
+                                    options={{
+                                        responsive: true,
+                                        plugins: {
+                                            legend: { position: 'top' },
+                                            title: { display: true, text: 'Voter Location Distribution' }
+                                        }
+                                    }}
+                                />
+                            ) : (
+                                <div className="no-data">No data available</div>
+                            )}
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
+
+export default ReportView;

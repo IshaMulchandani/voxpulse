@@ -16,17 +16,20 @@ const Reports = () => {
     useEffect(() => {
         const fetchReports = async () => {
             try {
-                const reportsSnapshot = await getDocs(collection(db, 'publicReports'));
+                const reportsSnapshot = await getDocs(collection(db, 'reports'));
                 const reportsData = [];
                 
-                reportsSnapshot.forEach(doc => {
+                for (const doc of reportsSnapshot.docs) {
                     const data = doc.data();
-                    reportsData.push({
-                        id: doc.id,
-                        ...data,
-                        hasRead: data.readBy?.includes(auth.currentUser?.uid)
-                    });
-                });
+                    // Only include reports that are marked as public
+                    if (data.isPublic) {
+                        reportsData.push({
+                            id: doc.id,
+                            ...data,
+                            hasRead: data.readBy?.includes(auth.currentUser?.uid)
+                        });
+                    }
+                }
                 
                 setAdminReports(reportsData);
             } catch (error) {
@@ -39,40 +42,32 @@ const Reports = () => {
         }
     }, [auth.currentUser]);
 
-    const handleViewReport = async (reportId, isUserReport = false) => {
-        if (isUserReport) {
-            navigate(`/report/${reportId}`);
-            return;
-        }
-
+    const handleViewReport = async (reportId) => {
         try {
             if (!auth.currentUser) {
                 alert('Please login to view this report');
                 return;
             }
 
-            // Get reference to both public and admin reports
-            const publicReportRef = doc(db, 'publicReports', reportId);
-            const publicReportDoc = await getDoc(publicReportRef);
+            // Get reference to the report
+            const reportRef = doc(db, 'reports', reportId);
+            const reportDoc = await getDoc(reportRef);
             
-            if (!publicReportDoc.exists()) {
+            if (!reportDoc.exists()) {
                 console.error("Report not found");
                 return;
             }
 
-            const adminReportId = publicReportDoc.data().reportId;
-            const adminReportRef = doc(db, 'reports', adminReportId);
+            if (!reportDoc.data().isPublic) {
+                console.error("This report is not public");
+                return;
+            }
 
             // Check if user hasn't read this report yet
-            if (!publicReportDoc.data().readBy?.includes(auth.currentUser.uid)) {
-                // Update readBy array in both collections
-                await updateDoc(publicReportRef, {
-                    readBy: arrayUnion(auth.currentUser.uid)
-                });
-                
-                await updateDoc(adminReportRef, {
+            if (!reportDoc.data().readBy?.includes(auth.currentUser.uid)) {
+                await updateDoc(reportRef, {
                     readBy: arrayUnion(auth.currentUser.uid),
-                    views: (publicReportDoc.data().readBy?.length || 0) + 1
+                    views: (reportDoc.data().views || 0) + 1
                 });
             }
 
@@ -119,29 +114,7 @@ const Reports = () => {
                     </div>
                 )}
 
-                {/* Original User Reports Section */}
-                <div className="user-reports-section">
-                    <h2 className="section-subtitle">Your Activity Reports</h2>
-                    <div className="user-reports-container">
-                        <div className="user-report-card">
-                            <h2>Vote Analysis Report</h2>
-                            <p>A comprehensive overview of your voting patterns, participation rates, and engagement metrics for the past month.</p>
-                            <button className="user-view-report-btn" onClick={() => handleViewReport('vote-analysis', true)}>View Report</button>
-                        </div>
-                        
-                        <div className="user-report-card">
-                            <h2>Comment Analysis</h2>
-                            <p>Detailed breakdown of the comments you've posted across different categories.</p>
-                            <button className="user-view-report-btn" onClick={() => handleViewReport('comment-analysis', true)}>View Report</button>
-                        </div>
-                        
-                        <div className="user-report-card">
-                            <h2>Activity Report</h2>
-                            <p>See how your votes have influenced poll outcomes and your contribution to the community's decision-making process.</p>
-                            <button className="user-view-report-btn" onClick={() => handleViewReport('activity-report', true)}>View Report</button>
-                        </div>
-                    </div>
-                </div>
+                {/* Removed legacy dummy user reports section */}
             </div>
         </div>
     );

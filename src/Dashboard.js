@@ -66,28 +66,66 @@ const Dashboard = () => {
         fetchVotedPolls();
     }, []);
 
-    const handleViewReport = (reportType) => {
-        navigate(`/report/${reportType}`);
-    };
+    const [reports, setReports] = useState([]);
+    const [reportsLoading, setReportsLoading] = useState(true);
 
-    // Reports data
-    const reports = [
-        {
-            title: "Vote Analysis Report",
-            description: "Detailed analysis of voting patterns and trends",
-            reportType: "vote-analysis"
-        },
-        {
-            title: "Comment Analysis",
-            description: "Analysis of user comments and feedback",
-            reportType: "comment-analysis"
-        },
-        {
-            title: "Activity Report",
-            description: "Overview of user engagement and participation",
-            reportType: "activity-report"
-        }
-    ];
+    useEffect(() => {
+        const setupReportsListener = async () => {
+            try {
+                setReportsLoading(true);
+                const { collection, onSnapshot } = await import('firebase/firestore');
+                const { db } = await import('./firebase');
+                
+                // Set up real-time listener for reports
+                const unsubscribe = onSnapshot(collection(db, 'publicReports'), (snapshot) => {
+                    const reportsData = [];
+                    const seenTitles = new Set();
+                    
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        const uniqueKey = `${data.title}-${data.createdAt}`;
+                        
+                        if (!seenTitles.has(uniqueKey)) {
+                            seenTitles.add(uniqueKey);
+                            reportsData.push({
+                                id: doc.id,
+                                title: data.title,
+                                description: data.description,
+                                type: data.type,
+                                createdAt: data.createdAt
+                            });
+                        }
+                    });
+                    
+                    // Sort by creation date (newest first) and take only the first 3
+                    reportsData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                    setReports(reportsData.slice(0, 3));
+                    setReportsLoading(false);
+                });
+                
+                return unsubscribe;
+            } catch (error) {
+                console.error('Error setting up reports listener:', error);
+                setReports([]);
+                setReportsLoading(false);
+            }
+        };
+
+        let unsubscribe;
+        setupReportsListener().then(unsub => {
+            unsubscribe = unsub;
+        });
+        
+        return () => {
+            if (unsubscribe) {
+                unsubscribe();
+            }
+        };
+    }, []);
+
+    const handleViewReport = (reportId) => {
+        navigate(`/user-report-view/${reportId}`);
+    };
 
     // Calculate stroke for SVG
     const radius = 80;
@@ -162,13 +200,30 @@ const Dashboard = () => {
                 <div className="dashboard-section">
                     <h2>Reports</h2>
                     <div className="reports-list">
-                        {reports.map((report, index) => (
-                            <div key={index} className="report-card">
-                                <h3>{report.title}</h3>
-                                <p>{report.description}</p>
-                                <button className="view-report-btn" onClick={()=> handleViewReport(report.reportType)}>View Report</button>
+                        {reportsLoading ? (
+                            <div>Loading reports...</div>
+                        ) : reports.length === 0 ? (
+                            <div className="no-reports-message">
+                                <h3>📊 No reports available yet</h3>
+                                <p>Check back later for new reports from administrators.</p>
                             </div>
-                        ))}
+                        ) : (
+                            reports.map((report) => (
+                                <div key={report.id} className="report-card">
+                                    <h3>{report.title}</h3>
+                                    <p>{report.description}</p>
+                                    <div className="report-meta">
+                                        <span className="report-type">
+                                            {report.type === 'poll' ? '📊 Poll Report' : '⚙️ System Report'}
+                                        </span>
+                                        <span className="report-date">
+                                            {new Date(report.createdAt).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                    <button className="view-report-btn" onClick={() => handleViewReport(report.id)}>View Report</button>
+                                </div>
+                            ))
+                        )}
                     </div>
                 </div>
             </div>

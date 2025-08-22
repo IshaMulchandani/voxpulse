@@ -14,38 +14,59 @@ const Reports = () => {
     const auth = getAuth();
 
     useEffect(() => {
-        const fetchReports = async () => {
+        const setupReportsListener = async () => {
+            if (!auth.currentUser) {
+                setLoading(false);
+                return;
+            }
+
             try {
                 setLoading(true);
-                // Fetch reports from the publicReports collection
-                const reportsSnapshot = await getDocs(collection(db, 'publicReports'));
-                const reportsData = [];
                 
-                for (const doc of reportsSnapshot.docs) {
-                    const data = doc.data();
-                    reportsData.push({
-                        id: doc.id,
-                        ...data,
-                        hasRead: data.readBy?.includes(auth.currentUser?.uid)
+                // Import onSnapshot for real-time listener
+                const { onSnapshot } = await import('firebase/firestore');
+                
+                // Set up real-time listener for report changes
+                const unsubscribe = onSnapshot(collection(db, 'publicReports'), (snapshot) => {
+                    const reportsData = [];
+                    const seenTitles = new Set();
+                    
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        const uniqueKey = `${data.title}-${data.createdAt}`;
+                        
+                        if (!seenTitles.has(uniqueKey)) {
+                            seenTitles.add(uniqueKey);
+                            reportsData.push({
+                                id: doc.id,
+                                ...data,
+                                hasRead: data.readBy?.includes(auth.currentUser?.uid)
+                            });
+                        }
                     });
-                }
+                    
+                    reportsData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                    setAdminReports(reportsData);
+                    setLoading(false);
+                });
                 
-                // Sort reports by creation date (newest first)
-                reportsData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-                
-                setAdminReports(reportsData);
+                return unsubscribe;
             } catch (error) {
-                console.error("Error fetching reports:", error);
-            } finally {
+                console.error("Error setting up reports listener:", error);
                 setLoading(false);
             }
         };
         
-        if (auth.currentUser) {
-            fetchReports();
-        } else {
-            setLoading(false);
-        }
+        let unsubscribe;
+        setupReportsListener().then(unsub => {
+            unsubscribe = unsub;
+        });
+        
+        return () => {
+            if (unsubscribe) {
+                unsubscribe();
+            }
+        };
     }, [auth.currentUser]);
 
     const handleViewReport = async (reportId) => {
@@ -75,8 +96,8 @@ const Reports = () => {
                 });
             }
 
-            // Navigate to admin report view (works for public reports too)
-            navigate(`/admin-report-view/${reportId}`);
+            // Navigate to user report view
+            navigate(`/user-report-view/${reportId}`);
         } catch (error) {
             console.error("Error updating report views:", error);
             alert('Error loading report. Please try again.');

@@ -48,11 +48,28 @@ const AdminReports = () => {
     const handleDeleteReport = async (reportId) => {
         if (window.confirm('Are you sure you want to delete this report? This action cannot be undone.')) {
             try {
-                // Delete the report from Firestore
+                // Delete the report from admin reports collection
                 await deleteDoc(doc(db, 'reports', reportId));
+                
+                // Find and delete corresponding report from publicReports collection
+                const { query, where, getDocs } = await import('firebase/firestore');
+                const publicReportsQuery = query(
+                    collection(db, 'publicReports'),
+                    where('adminReportId', '==', reportId)
+                );
+                const publicReportsSnapshot = await getDocs(publicReportsQuery);
+                
+                // Delete all matching public reports (should be only one, but using forEach for safety)
+                const deletePromises = [];
+                publicReportsSnapshot.forEach(doc => {
+                    deletePromises.push(deleteDoc(doc.ref));
+                });
+                await Promise.all(deletePromises);
                 
                 // Update the local state to remove the deleted report
                 setReports(prevReports => prevReports.filter(report => report.id !== reportId));
+                
+                console.log(`Report ${reportId} deleted from both admin and public collections`);
             } catch (error) {
                 console.error("Error deleting report:", error);
                 alert('Failed to delete report. Please try again.');

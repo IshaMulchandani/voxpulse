@@ -137,10 +137,11 @@ const CreateReport = () => {
             // Add to admin reports collection
             const adminReportRef = await addDoc(collection(db, 'reports'), reportData);
             
-            // Add to public reports collection
+            // Add to public reports collection with same ID for sync
             await addDoc(collection(db, 'publicReports'), {
                 ...reportData,
-                reportId: adminReportRef.id // Reference to admin report
+                adminReportId: adminReportRef.id, // Reference to admin report
+                syncId: adminReportRef.id // For deletion sync
             });
             
             setNotification({ type: 'success', message: 'Report generated successfully!' });

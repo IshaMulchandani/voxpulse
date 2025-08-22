@@ -14,6 +14,7 @@ import SignUp from './SignUp';
 import Login from './Login';
 import Footer from './Footer'
 import ReportView from './components/ReportView';
+import UserReportView from './components/UserReportView';
 import VotingPage from './components/VotingPage';
 import CommentsPage from './components/CommentsPage';
 import AdminDashboard from './AdminDashboard';
@@ -32,6 +33,7 @@ function AppHeader() {
   // Show Header2 for all post-login pages
   if (["/dashboard", "/polls", "/reports", "/trending", "/edit-profile", "/create-poll"].includes(location.pathname) || 
       location.pathname.startsWith("/report/") || 
+      location.pathname.startsWith("/user-report-view/") ||
       location.pathname.startsWith("/poll/") ||
       location.pathname.startsWith("/vote/") ||
       location.pathname.startsWith("/comments/") ||
@@ -60,6 +62,7 @@ function App() {
           <Route path="/edit-profile" element={<EditProfile />} />
           <Route path="/poll/:pollId" element={<PollPage />} />
           <Route path="/report/:reportType" element={<ReportView />} />
+          <Route path="/user-report-view/:reportId" element={<UserReportView />} />
           <Route path="/vote/:pollId" element={<VotingPage />} />
           <Route path="/comments/:pollId" element={<CommentsPage />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />

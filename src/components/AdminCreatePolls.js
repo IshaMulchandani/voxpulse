@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import AdminNavbar from './AdminNavbar';
 import './AdminPages.css';
 import { db } from '../firebase';
-import { collection, getDocs, doc, updateDoc, query, where } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
 
 const AdminCreatePolls = () => {
     const navigate = useNavigate();

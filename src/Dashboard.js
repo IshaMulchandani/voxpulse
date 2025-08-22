@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './Dashboard.css';
-import Header2 from './Header2';
 import Navbar from './components/Navbar';
 import { useNavigate } from 'react-router-dom';
 

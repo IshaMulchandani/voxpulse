@@ -4,7 +4,7 @@ import './PollsForYou.css';
 import Navbar from './components/Navbar';
 
 
-import { collection, getDocs, query, orderBy, where } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from './firebase';
 
 const PollsForYou = () => {

@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
+import AdminNavbar from './AdminNavbar';
+import Navbar from './Navbar';
 import './AdminReportView.css';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement, RadialLinearScale } from 'chart.js';
 import { Bar, Pie, Doughnut, PolarArea } from 'react-chartjs-2';
@@ -14,6 +16,12 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend,
 const AdminReportView = () => {
     const { reportId } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
+
+    // Determine if user came from admin panel or regular reports
+    const isFromAdmin = location.state?.fromAdmin || 
+                       (typeof window !== 'undefined' && window.location.pathname.includes('/admin')) ||
+                       document.referrer.includes('/admin');
 
     // Loading and error states
     const [loading, setLoading] = useState(true);
@@ -38,14 +46,22 @@ const AdminReportView = () => {
                 setLoading(true);
                 setError('');
 
-                // Fetch report from admin collection
-                const reportRef = doc(db, 'reports', reportId);
-                const reportSnap = await getDoc(reportRef);
+                // First try to fetch report from admin collection
+                let reportRef = doc(db, 'reports', reportId);
+                let reportSnap = await getDoc(reportRef);
+                
+                // If not found in admin collection, try public collection
+                if (!reportSnap.exists()) {
+                    reportRef = doc(db, 'publicReports', reportId);
+                    reportSnap = await getDoc(reportRef);
+                }
+                
                 if (!reportSnap.exists()) {
                     setError('Report not found');
                     setLoading(false);
                     return;
                 }
+                
                 const reportData = reportSnap.data();
                 setReport({ id: reportSnap.id, ...reportData });
 
@@ -64,6 +80,7 @@ const AdminReportView = () => {
                     }
                 }
             } catch (e) {
+                console.error('Error fetching report data:', e);
                 setError('Failed to load report data');
             } finally {
                 setLoading(false);
@@ -381,7 +398,12 @@ const AdminReportView = () => {
     };
 
     const handleBack = () => {
-        navigate('/admin-reports');
+        // Navigate to admin reports if coming from admin, otherwise to regular reports
+        if (isFromAdmin) {
+            navigate('/admin-reports');
+        } else {
+            navigate('/reports');
+        }
     };
 
 

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+// import { useNavigate } from 'react-router-dom';
 import AdminNavbar from './AdminNavbar';
 import './AdminPages.css';
 
 const AdminManageAccess = () => {
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
     const [notification, setNotification] = useState(null);
     
     // Fetch users from Firestore

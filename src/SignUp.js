@@ -1,15 +1,15 @@
 
 import { signUpUser } from './authFunctions';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import React from "react";
 import './SignUp.css'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 export default function SignUp(){
     // State for form handling
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
     // Form submission handler
     const handleSubmit = async (e) => {

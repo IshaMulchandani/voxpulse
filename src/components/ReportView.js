@@ -16,7 +16,7 @@ import {
     Tooltip,
     Legend
 } from 'chart.js';
-import { Bar, Pie } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
 
 ChartJS.register(
     CategoryScale,

@@ -4,11 +4,15 @@ import AdminNavbar from './AdminNavbar';
 import './AdminPages.css';
 import { db } from '../firebase';
 import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
+import urlsData from '../imgs/img_urls.json'
 
 const AdminCreatePolls = () => {
     const navigate = useNavigate();
     const [polls, setPolls] = useState([]);
     const [loading, setLoading] = useState(true);
+    
+    // Extract the URLs from the nested structure
+    const urls = urlsData.urls;
 
     const handleCreatePoll = () => {
         navigate('/admin-create-poll');
@@ -82,11 +86,17 @@ const AdminCreatePolls = () => {
                         <p>No polls found.</p>
                     ) : (
                         <div className="polls-list">
-                            {polls.map(poll => (
+                            {
+                                polls.map(poll => (
                                 <div key={poll.id} className="poll-management-card">
                                     <div className="poll-image">
                                         <img
-                                            src={poll.imageUrl || 'https://via.placeholder.com/200x150?text=No+Image'}
+                                            src={(() => {
+                                                console.log('Poll category:', poll.category);
+                                                console.log('Available URLs:', Object.keys(urls));
+                                                console.log('URL for category:', urls[poll.category]);
+                                                return urls[poll.category] || 'https://via.placeholder.com/200x150?text=No+Image';
+                                            })()}
                                             alt={poll.title}
                                         />
                                     </div>
@@ -94,6 +104,12 @@ const AdminCreatePolls = () => {
                                     <div className="poll-details">
                                         <h3 className="poll-title">{poll.title}</h3>
                                         <div className="poll-meta">
+                                            <div className="meta-item">
+                                                <span className="meta-label">Category:</span>
+                                                <span className="meta-value">
+                                                    {poll.category || 'Uncategorized'}
+                                                </span>
+                                            </div>
                                             <div className="meta-item">
                                                 <span className="meta-label">Created on:</span>
                                                 <span className="meta-value">

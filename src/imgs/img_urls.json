@@ -1,0 +1,14 @@
+{
+    "urls":{
+        "Education": "https://images.hindustantimes.com/rf/image_size_640x362/HT/p2/2015/12/01/Pictures/_c34102da-9849-11e5-b4f4-1b7a09ed2cea.jpg",
+        "Health":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTaqv_IX0j9VUnPnPQ6et60MjVEQ4aiyDogYA&s",
+        "Technology":"https://res.cloudinary.com/engineering-com/image/upload/w_640,h_640,c_limit,q_auto,f_auto/bigstock-Technology-And-Biometric-Conce-213062104_kygpiv.jpg",
+        "Sports": "https://www.shutterstock.com/image-photo/different-sports-equipment-on-green-600nw-2463190611.jpg",
+        "Politics":"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS4QHZAjIIYjoDbzC7yzH8VfswJMRU_GM4gOg&s",
+        "Environment":"https://miro.medium.com/v2/resize:fit:1400/1*_nlTYfyrnBdp_hjvwWmnEQ.jpeg",
+        "Entertainment":"https://etimg.etb2bimg.com/photo/81478822.cms",
+        "Business":"https://imageio.forbes.com/specials-images/imageserve/5fca87f3ce4ca55e8985a10a/0x0.jpg?format=jpg&height=900&width=1600&fit=bounds",
+        "Science":"https://platform.vox.com/wp-content/uploads/sites/2/chorus/uploads/chorus_asset/file/15414153/shutterstock_172355312.0.0.1435352379.jpg?quality=90&strip=all&crop=0,18.409318647355,100,63.181362705289",
+        "Social Issues":"https://assets.ltkcontent.com/images/913225/Common-Examples-of-Social-Issues_7609c3567e.jpg"
+    }
+}

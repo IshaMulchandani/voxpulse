@@ -126,12 +126,12 @@ const AdminManageAccess = () => {
                                         </div>
                                     </div>
                                     <div className="user-actions">
-                                        <button 
+                                        {/* <button 
                                             className={`admin-toggle-btn ${user.role === 'admin' ? 'revoke' : 'grant'}`}
                                             onClick={() => handleGrantAdmin(user.id)}
                                         >
                                             {user.role === 'admin' ? 'Revoke Admin' : 'Grant Admin'}
-                                        </button>
+                                        </button> */}
                                         <button 
                                             className="delete-user-btn"
                                             onClick={() => handleDeleteUser(user.id)}

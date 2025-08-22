@@ -162,7 +162,7 @@ const AdminDashboard = () => {
                     <div className="action-card">
                         <h3>User Management</h3>
                         <div className="action-buttons">
-                            <button className="action-btn btn-secondary" onClick={()=>navigate('/admin-manage-access')}>Manage Access</button>
+                            <button className="action-btn btn-secondary" onClick={()=>navigate('/admin-manage-access')}>Manage Users</button>
                         </div>
                     </div>
                 </div>

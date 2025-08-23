@@ -379,7 +379,7 @@ const PollPage = () => {
                 </div>
 
                 <div className="poll-content">
-                    <div className="back-arrow" onClick={() => navigate('/polls-for-you')}>
+                    <div className="back-arrow" onClick={() => navigate('/dashboard')}>
                         ←
                     </div>
                     <div className="poll-description-section">

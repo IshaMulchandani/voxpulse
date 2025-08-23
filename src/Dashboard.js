@@ -47,13 +47,17 @@ const Dashboard = () => {
                 const voted = [];
                 pollsSnapshot.forEach(doc => {
                     const data = doc.data();
-                    // Check if user has voted (assume votesByUser: { userId: optionIndex })
-                    if (data.votesByUser && data.votesByUser[user.uid] !== undefined) {
-                        voted.push({
-                            id: doc.id,
-                            title: data.title,
-                            userChoice: data.options[data.votesByUser[user.uid]]
-                        });
+                    // Check if user has voted using votesWithDetails array
+                    if (data.votesWithDetails && Array.isArray(data.votesWithDetails)) {
+                        const userVote = data.votesWithDetails.find(vote => vote.userId === user.uid);
+                        if (userVote) {
+                            voted.push({
+                                id: doc.id,
+                                title: data.title,
+                                userChoice: userVote.option || data.options[userVote.optionIndex],
+                                votedAt: userVote.timestamp
+                            });
+                        }
                     }
                 });
                 setVotedPolls(voted);
@@ -192,6 +196,14 @@ const Dashboard = () => {
                                 <div key={poll.id} className="poll-card">
                                     <h3>{poll.title}</h3>
                                     <p>Your choice: <span className="user-choice">{poll.userChoice}</span></p>
+                                    {poll.votedAt && (
+                                        <p className="vote-date">
+                                            Voted on: {poll.votedAt.toDate ? 
+                                                poll.votedAt.toDate().toLocaleDateString() : 
+                                                new Date(poll.votedAt).toLocaleDateString()
+                                            }
+                                        </p>
+                                    )}
                                 </div>
                             ))
                         )}

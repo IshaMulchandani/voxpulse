@@ -165,9 +165,9 @@ const VotingPage = () => {
             });
 
             setShowNotification(true);
-            // After 2 seconds, redirect back to trending topics
+            // After 2 seconds, redirect back to polls for you
             setTimeout(() => {
-                navigate('/trending');
+                navigate('/polls-for-you');
             }, 2000);
         } catch (e) {
             console.error('Error submitting vote:', e);
@@ -246,7 +246,7 @@ const VotingPage = () => {
         <div>
             <Navbar />
             <div className="voting-page">
-                <div className="back-arrow" onClick={() => navigate(`/poll/${pollId}`)}>
+                <div className="back-arrow" onClick={() => navigate('/polls-for-you')}>
                     ←
                 </div>
                 <div className="voting-container">
@@ -260,7 +260,7 @@ const VotingPage = () => {
         <div>
             <Navbar />
             <div className="voting-page">
-                <div className="back-arrow" onClick={() => navigate(`/poll/${pollId}`)}>
+                <div className="back-arrow" onClick={() => navigate('/polls-for-you')}>
                     ←
                 </div>
                 <div className="voting-container">

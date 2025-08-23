@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './PollsForYou.css';
 import Navbar from './components/Navbar';
-
+import urlsData from './imgs/img_urls.json';
 
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from './firebase';
@@ -11,6 +11,9 @@ const PollsForYou = () => {
     const navigate = useNavigate();
     const [polls, setPolls] = useState([]);
     const [loading, setLoading] = useState(true);
+    
+    // Extract the URLs from the nested structure
+    const urls = urlsData.urls;
 
     useEffect(() => {
         const fetchPolls = async () => {
@@ -25,6 +28,7 @@ const PollsForYou = () => {
                     return {
                         id: doc.id,
                         title: data.title,
+                        description: data.description || 'Click to view and vote on this poll',
                         category: data.category || 'General',
                         status: data.status || 'active'
                     };
@@ -39,45 +43,66 @@ const PollsForYou = () => {
         fetchPolls();
     }, []);
 
+    const handleCardClick = (pollId) => {
+        navigate(`/vote/${pollId}`);
+    };
+
     const handleVoteNow = (pollId) => {
         navigate(`/vote/${pollId}`);
     };
 
-    // Group polls by category
-    const pollsByCategory = polls.reduce((acc, poll) => {
-        if (!acc[poll.category]) acc[poll.category] = [];
-        acc[poll.category].push(poll);
-        return acc;
-    }, {});
-
     return (
-        <div className="polls-page">
-            <Navbar/><br />
-            <br />
-            <h1 className="polls-title">Polls For You</h1>
-            <div className="categories-grid">
-                {loading ? (
-                    <div>Loading polls...</div>
-                ) : polls.length === 0 ? (
-                    <div>No polls found.</div>
-                ) : (
-                    Object.entries(pollsByCategory).map(([category, pollsArr], index) => (
-                        <div key={index} className="category-section">
-                            <h2 className="category-title">{category}</h2>
-                            <div className="polls-container">
-                                {pollsArr.map((poll) => (
-                                    <div key={poll.id} className="poll-item">
-                                        <div className="poll-content">
-                                            <h3 className="poll-title">{poll.title}</h3>
-                                            <button className="vote-button" onClick={() => handleVoteNow(poll.id)}>Vote Now</button>
-                                        </div>
-                                    </div>
-                                ))}
+        <div className="section-page">
+            <Navbar/><br /><br />
+            <div className="page-header">
+                <h1 className="section-title">Polls For You</h1>
+            </div>
+            
+            {loading ? (
+                <div className="loading-container">
+                    <div className="loading-spinner"></div>
+                    <p>Loading polls...</p>
+                </div>
+            ) : polls.length === 0 ? (
+                <div className="no-polls-container">
+                    <div className="no-polls-message">
+                        <h3>No Polls Available</h3>
+                        <p>There are currently no active polls. Check back later for new content!</p>
+                    </div>
+                </div>
+            ) : (
+                <div className="polls-grid">
+                    {polls.map(poll => (
+                        <div 
+                            key={poll.id} 
+                            className="poll-card"
+                            onClick={() => handleCardClick(poll.id)}
+                        >
+                            <img 
+                                src={urls[poll.category] || 'https://via.placeholder.com/320x200?text=Poll+Image'} 
+                                alt={poll.title} 
+                                className="card-image" 
+                            />
+                            <div className="card-content">
+                                <span className={`card-category category-${poll.category.toLowerCase()}`}>
+                                    {poll.category}
+                                </span>
+                                <h2 className="card-title">{poll.title}</h2>
+                                <p className="card-description">{poll.description}</p>
+                                <button 
+                                    className="vote-button" 
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleVoteNow(poll.id);
+                                    }}
+                                >
+                                    Vote Now
+                                </button>
                             </div>
                         </div>
-                    ))
-                )}
-            </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 };
